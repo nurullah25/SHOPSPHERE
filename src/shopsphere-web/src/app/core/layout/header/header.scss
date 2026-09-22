@@ -1,0 +1,40 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 8px;
+  background-color: var(--mat-sys-surface-container);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+  text-decoration: none;
+  font-weight: 700;
+  color: var(--mat-sys-primary);
+}
+
+.nav-links .active {
+  color: var(--mat-sys-primary);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.sign-in {
+  margin-left: 8px;
+}
+
+@media (max-width: 600px) {
+  .nav-links {
+    display: none;
+  }
+
+  .brand span {
+    display: none;
+  }
+}
