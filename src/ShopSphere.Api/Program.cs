@@ -1,8 +1,15 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using ShopSphere.Api.Common;
 using ShopSphere.Api.Data;
+using ShopSphere.Api.Entities;
+using ShopSphere.Api.Features.Auth;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -18,6 +25,42 @@ try
 
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddOptions<JwtSettings>()
+        .Bind(builder.Configuration.GetSection(JwtSettings.SectionName))
+        .Validate(s => s.Key.Length >= 32, "Jwt:Key must be set (user secrets) and be at least 32 characters long.")
+        .ValidateOnStart();
+
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+
+    // Configured through options so the values are read after all configuration
+    // sources (user secrets, test overrides) have been loaded.
+    builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+        .Configure<IOptions<JwtSettings>>((options, jwtOptions) =>
+        {
+            var jwt = jwtOptions.Value;
+            options.MapInboundClaims = false;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwt.Issuer,
+                ValidateAudience = true,
+                ValidAudience = jwt.Audience,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key)),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.FromSeconds(30),
+                NameClaimType = JwtRegisteredClaimNames.Sub,
+                RoleClaimType = AppClaims.Role
+            };
+        });
+
+    builder.Services.AddAuthorizationBuilder()
+        .AddPolicy(Policies.Admin, policy => policy.RequireRole(nameof(UserRole.Admin)))
+        .AddPolicy(Policies.Customer, policy => policy.RequireRole(nameof(UserRole.Customer)));
+
+    builder.Services.AddScoped<TokenService>();
+    builder.Services.AddScoped<AuthService>();
 
     builder.Services.AddControllers();
     builder.Services.AddProblemDetails();
@@ -62,6 +105,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
@@ -77,3 +121,6 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// Makes Program visible to WebApplicationFactory in the integration tests
+public partial class Program;

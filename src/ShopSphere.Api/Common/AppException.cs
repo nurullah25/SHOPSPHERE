@@ -20,6 +20,14 @@ public class NotFoundException : AppException
     }
 }
 
+public class UnauthorizedException : AppException
+{
+    public UnauthorizedException(string message)
+        : base("Unauthorized", message, StatusCodes.Status401Unauthorized)
+    {
+    }
+}
+
 public class BusinessRuleException : AppException
 {
     public BusinessRuleException(string title, string message, int statusCode = StatusCodes.Status409Conflict)

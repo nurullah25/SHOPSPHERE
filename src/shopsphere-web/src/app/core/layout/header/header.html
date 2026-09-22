@@ -16,5 +16,30 @@
   <a mat-icon-button routerLink="/cart" aria-label="Cart">
     <mat-icon>shopping_cart</mat-icon>
   </a>
-  <a mat-stroked-button routerLink="/login" class="sign-in">Sign in</a>
+
+  @if (user$ | async; as user) {
+    <button mat-button [matMenuTriggerFor]="accountMenu" class="account-button">
+      <mat-icon>account_circle</mat-icon>
+      <span class="account-name">{{ user.firstName }}</span>
+    </button>
+    <mat-menu #accountMenu="matMenu" xPosition="before">
+      <div class="menu-user">
+        <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+        <span>{{ user.email }}</span>
+      </div>
+      <mat-divider />
+      @if (user.role === 'Admin') {
+        <a mat-menu-item routerLink="/admin">
+          <mat-icon>dashboard</mat-icon>
+          <span>Admin dashboard</span>
+        </a>
+      }
+      <button mat-menu-item (click)="auth.logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Sign out</span>
+      </button>
+    </mat-menu>
+  } @else {
+    <a mat-stroked-button routerLink="/login" class="sign-in">Sign in</a>
+  }
 </mat-toolbar>

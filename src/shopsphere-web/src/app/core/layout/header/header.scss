@@ -25,12 +25,26 @@
   flex: 1;
 }
 
-.sign-in {
+.sign-in,
+.account-button {
   margin-left: 8px;
 }
 
+.menu-user {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 12px;
+  font: var(--mat-sys-body-medium);
+
+  span {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+  }
+}
+
 @media (max-width: 600px) {
-  .nav-links {
+  .nav-links,
+  .account-name {
     display: none;
   }
 

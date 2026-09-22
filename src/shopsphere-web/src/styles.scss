@@ -33,3 +33,11 @@ a {
   margin: 0 auto;
   padding: 24px 16px;
 }
+
+.snack-error {
+  @include mat.snack-bar-overrides((
+    container-color: var(--mat-sys-error-container),
+    supporting-text-color: var(--mat-sys-on-error-container),
+    button-color: var(--mat-sys-on-error-container),
+  ));
+}

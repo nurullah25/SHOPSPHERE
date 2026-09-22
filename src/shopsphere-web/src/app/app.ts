@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Header } from './core/layout/header/header';
-import { Footer } from './core/layout/footer/footer';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { LoadingService } from './core/services/loading.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer],
+  imports: [RouterOutlet, MatProgressBarModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {}
+export class App {
+  protected readonly loading = inject(LoadingService);
+}

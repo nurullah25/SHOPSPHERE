@@ -33,7 +33,8 @@ ShopSphere/
 ├── src/
 │   ├── ShopSphere.Api/        ASP.NET Core Web API
 │   └── shopsphere-web/        Angular application
-├── tests/                     xUnit tests (added with the auth phase)
+├── tests/
+│   └── ShopSphere.Api.Tests/  xUnit integration tests
 └── docs/                      design notes, screenshots, Postman collection
 ```
 
@@ -48,9 +49,12 @@ ShopSphere/
 
 ### Run the API
 
+The API needs a JWT signing key (at least 32 characters). It isn't committed, so set it once in User Secrets. The API refuses to start without it.
+
 ```bash
 dotnet tool restore
 cd src/ShopSphere.Api
+dotnet user-secrets set "Jwt:Key" "<a long random string, 32+ characters>"
 dotnet run --launch-profile https
 ```
 
@@ -86,18 +90,28 @@ Open http://localhost:4200. Requests to `/api` are forwarded to the API by the A
 
 ### Configuration
 
-No secrets are committed. Local-only values (JWT signing key, etc.) go into .NET User Secrets:
+| Setting | Where | Notes |
+|---|---|---|
+| `ConnectionStrings:DefaultConnection` | appsettings.json | LocalDB by default |
+| `Jwt:Key` | User Secrets / environment variable | Required, never committed |
+| `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays` | appsettings.json | 15 minutes / 7 days |
+| `Seed:*` | appsettings.Development.json | Demo account credentials, Development only |
+
+In production, settings would come from environment variables (e.g. `Jwt__Key`) or a secret store.
+
+## Running the tests
 
 ```bash
-cd src/ShopSphere.Api
-dotnet user-secrets set "Jwt:Key" "<a long random string>"
+dotnet test
 ```
+
+The integration tests start the API in memory with `WebApplicationFactory` and run against a separate LocalDB database (`ShopSphere_Tests`), which is dropped and recreated at the start of each run. They use a real SQL Server because the business rules rely on transactions and constraints that the EF Core in-memory provider doesn't support.
 
 ## Roadmap
 
 - [x] Phase 0: Solution setup, Serilog, Swagger, global error handling, Angular shell
 - [x] Phase 1: Database schema, migrations, seed data
-- [ ] Phase 2: Authentication and authorization
+- [x] Phase 2: Authentication and authorization
 - [ ] Phase 3: Catalog API and admin catalog management
 - [ ] Phase 4: Storefront UI
 - [ ] Phase 5: Cart and wishlist

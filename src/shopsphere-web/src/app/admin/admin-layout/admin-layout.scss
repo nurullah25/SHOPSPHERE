@@ -1,0 +1,44 @@
+.admin-container {
+  height: 100vh;
+}
+
+.admin-sidenav {
+  width: 240px;
+  background-color: var(--mat-sys-surface-container-low);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+}
+
+.sidenav-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  font-weight: 700;
+  color: var(--mat-sys-primary);
+}
+
+.active-link {
+  background-color: var(--mat-sys-secondary-container);
+}
+
+.admin-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--mat-sys-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.admin-content {
+  padding: 24px;
+}
+
+@media (max-width: 600px) {
+  .admin-content {
+    padding: 16px;
+  }
+}

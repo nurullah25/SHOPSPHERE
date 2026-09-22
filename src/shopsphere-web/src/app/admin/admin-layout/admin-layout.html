@@ -1,0 +1,49 @@
+<mat-sidenav-container class="admin-container">
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    class="admin-sidenav">
+    <div class="sidenav-brand">
+      <mat-icon>storefront</mat-icon>
+      <span>ShopSphere Admin</span>
+    </div>
+
+    <mat-nav-list>
+      @for (item of navItems; track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+          (click)="isMobile() && sidenav.close()">
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="admin-toolbar">
+      @if (isMobile()) {
+        <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <span class="spacer"></span>
+      <a mat-button routerLink="/">
+        <mat-icon>open_in_new</mat-icon>
+        View store
+      </a>
+      <button mat-button (click)="auth.logout()">
+        <mat-icon>logout</mat-icon>
+        Sign out
+      </button>
+    </mat-toolbar>
+
+    <div class="admin-content">
+      <router-outlet />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
