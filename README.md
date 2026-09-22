@@ -112,7 +112,7 @@ The integration tests start the API in memory with `WebApplicationFactory` and r
 - [x] Phase 0: Solution setup, Serilog, Swagger, global error handling, Angular shell
 - [x] Phase 1: Database schema, migrations, seed data
 - [x] Phase 2: Authentication and authorization
-- [ ] Phase 3: Catalog API and admin catalog management
+- [x] Phase 3: Catalog API and admin catalog management
 - [ ] Phase 4: Storefront UI
 - [ ] Phase 5: Cart and wishlist
 - [ ] Phase 6: Coupons, checkout and mock payment

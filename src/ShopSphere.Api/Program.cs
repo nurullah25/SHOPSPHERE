@@ -9,7 +9,11 @@ using Serilog;
 using ShopSphere.Api.Common;
 using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
+using ShopSphere.Api.Features.Admin;
+using ShopSphere.Api.Features.Admin.Categories;
+using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
+using ShopSphere.Api.Features.Catalog;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -61,6 +65,11 @@ try
 
     builder.Services.AddScoped<TokenService>();
     builder.Services.AddScoped<AuthService>();
+    builder.Services.AddScoped<CatalogService>();
+    builder.Services.AddScoped<AuditService>();
+    builder.Services.AddScoped<AdminProductService>();
+    builder.Services.AddScoped<AdminCategoryService>();
+    builder.Services.AddSingleton<ProductImageStorage>();
 
     builder.Services.AddControllers();
     builder.Services.AddProblemDetails();
@@ -105,6 +114,7 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseStaticFiles();
     app.UseAuthentication();
     app.UseAuthorization();
 

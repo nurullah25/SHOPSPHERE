@@ -56,6 +56,30 @@ public class ShopSphereApiFactory : WebApplicationFactory<Program>, IAsyncLifeti
         HandleCookies = false
     });
 
+    public async Task<HttpClient> CreateAdminClientAsync()
+    {
+        var client = CreateApiClient();
+        var (auth, _) = await AuthHelper.LoginAsync(client, AdminEmail, AdminPassword);
+        client.UseBearerToken(auth.AccessToken);
+        return client;
+    }
+
+    public async Task<HttpClient> CreateCustomerClientAsync()
+    {
+        var client = CreateApiClient();
+        var (auth, _) = await AuthHelper.RegisterCustomerAsync(client);
+        client.UseBearerToken(auth.AccessToken);
+        return client;
+    }
+
+    // For arranging data the API doesn't expose yet, or for checking side effects
+    public async Task<T> WithDbAsync<T>(Func<AppDbContext, Task<T>> action)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        return await action(db);
+    }
+
     Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
 }
 
