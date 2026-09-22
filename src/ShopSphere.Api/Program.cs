@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using ShopSphere.Api.Common;
+using ShopSphere.Api.Data;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -13,6 +15,9 @@ try
     builder.Host.UseSerilog((context, services, config) => config
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services));
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
     builder.Services.AddControllers();
     builder.Services.AddProblemDetails();
@@ -46,6 +51,8 @@ try
 
     if (app.Environment.IsDevelopment())
     {
+        await DbSeeder.MigrateAndSeedAsync(app.Services);
+
         app.UseSwagger();
         app.UseSwaggerUI();
     }
@@ -60,7 +67,7 @@ try
     app.MapControllers();
     app.MapHealthChecks("/health");
 
-    app.Run();
+    await app.RunAsync();
 }
 catch (Exception ex) when (ex is not HostAbortedException)
 {

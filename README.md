@@ -49,12 +49,30 @@ ShopSphere/
 ### Run the API
 
 ```bash
+dotnet tool restore
 cd src/ShopSphere.Api
 dotnet run --launch-profile https
 ```
 
+In the Development environment the API applies EF Core migrations and seeds demo data on startup. The default connection string points to LocalDB (`(localdb)\MSSQLLocalDB`, database `ShopSphere`). Change `ConnectionStrings:DefaultConnection` if you use a full SQL Server instance.
+
+To apply migrations manually instead:
+
+```bash
+dotnet ef database update --project src/ShopSphere.Api
+```
+
 - Swagger UI: https://localhost:7001/swagger
 - Health check: https://localhost:7001/health
+
+### Demo accounts (Development only)
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@shopsphere.local | Admin#12345 |
+| Customer | demo@shopsphere.local | Customer#12345 |
+
+The seed also creates a category tree, 32 products (some discounted, low on stock, out of stock or inactive) and four coupons: `WELCOME10`, `SAVE20`, `FLASH50`, and the expired `SUMMER25`.
 
 ### Run the Angular app
 
@@ -78,7 +96,7 @@ dotnet user-secrets set "Jwt:Key" "<a long random string>"
 ## Roadmap
 
 - [x] Phase 0: Solution setup, Serilog, Swagger, global error handling, Angular shell
-- [ ] Phase 1: Database schema, migrations, seed data
+- [x] Phase 1: Database schema, migrations, seed data
 - [ ] Phase 2: Authentication and authorization
 - [ ] Phase 3: Catalog API and admin catalog management
 - [ ] Phase 4: Storefront UI

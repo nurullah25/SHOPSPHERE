@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopSphere.Api.Common;
 
@@ -31,6 +32,16 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Status = appException.StatusCode,
                 Title = appException.Title,
                 Detail = appException.Message
+            };
+        }
+        else if (exception is DbUpdateConcurrencyException)
+        {
+            _logger.LogInformation("Concurrency conflict for {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Concurrency conflict",
+                Detail = "This record was changed by someone else. Reload it and try again."
             };
         }
         else
