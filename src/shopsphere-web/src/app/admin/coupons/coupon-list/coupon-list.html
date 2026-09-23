@@ -1,0 +1,90 @@
+<div class="page-heading">
+  <h1>Coupons</h1>
+  <button mat-flat-button (click)="openDialog(null)">
+    <mat-icon>add</mat-icon>
+    New coupon
+  </button>
+</div>
+
+@if (coupons().length === 0 && !loading()) {
+  <app-empty-state icon="local_offer" title="No coupons yet" message="Create a coupon to run a promotion." />
+} @else {
+  <div class="table-wrapper" [class.loading]="loading()">
+    <table mat-table [dataSource]="coupons()">
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>Code</th>
+        <td mat-cell *matCellDef="let coupon">
+          <span class="code">{{ coupon.code }}</span>
+          @if (coupon.description) {
+            <div class="muted">{{ coupon.description }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="discount">
+        <th mat-header-cell *matHeaderCellDef>Discount</th>
+        <td mat-cell *matCellDef="let coupon">
+          @if (coupon.discountType === 'Percentage') {
+            {{ coupon.discountValue }}%
+            @if (coupon.maxDiscountAmount) {
+              <div class="muted">max {{ coupon.maxDiscountAmount | currency: 'USD' }}</div>
+            }
+          } @else {
+            {{ coupon.discountValue | currency: 'USD' }}
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="conditions">
+        <th mat-header-cell *matHeaderCellDef>Minimum order</th>
+        <td mat-cell *matCellDef="let coupon">
+          {{ coupon.minOrderAmount ? (coupon.minOrderAmount | currency: 'USD') : '—' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="validity">
+        <th mat-header-cell *matHeaderCellDef>Valid</th>
+        <td mat-cell *matCellDef="let coupon">
+          <div>{{ coupon.startsAt ? (coupon.startsAt | date: 'mediumDate') : 'Always' }}</div>
+          <div class="muted" [class.expired]="isExpired(coupon)">
+            {{ coupon.expiresAt ? ((isExpired(coupon) ? 'Expired ' : 'Until ') + (coupon.expiresAt | date: 'mediumDate')) : 'No expiry' }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="usage">
+        <th mat-header-cell *matHeaderCellDef>Used</th>
+        <td mat-cell *matCellDef="let coupon">
+          {{ coupon.timesUsed }}@if (coupon.usageLimit) { / {{ coupon.usageLimit }} }
+          @if (coupon.usageLimitPerCustomer) {
+            <div class="muted">{{ coupon.usageLimitPerCustomer }} per customer</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let coupon">
+          <span class="status" [class.active]="coupon.isActive && !isExpired(coupon)">
+            {{ coupon.isActive ? (isExpired(coupon) ? 'Expired' : 'Active') : 'Inactive' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let coupon">
+          <button mat-icon-button (click)="openDialog(coupon)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="deleteCoupon(coupon)" matTooltip="Delete">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  </div>
+}

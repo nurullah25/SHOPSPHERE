@@ -45,6 +45,21 @@ export const ADMIN_ROUTES: Routes = [
         title: 'Order | ShopSphere Admin'
       },
       {
+        path: 'customers',
+        loadComponent: () => import('./customers/customer-list/customer-list').then(m => m.CustomerList),
+        title: 'Customers | ShopSphere Admin'
+      },
+      {
+        path: 'coupons',
+        loadComponent: () => import('./coupons/coupon-list/coupon-list').then(m => m.CouponList),
+        title: 'Coupons | ShopSphere Admin'
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./reports/reports-page/reports-page').then(m => m.ReportsPage),
+        title: 'Reports | ShopSphere Admin'
+      },
+      {
         path: 'categories',
         loadComponent: () => import('./categories/admin-categories/admin-categories').then(m => m.AdminCategories),
         title: 'Categories | ShopSphere Admin'

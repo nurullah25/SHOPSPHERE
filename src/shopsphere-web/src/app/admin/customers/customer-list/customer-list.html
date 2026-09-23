@@ -1,0 +1,89 @@
+<div class="page-heading">
+  <h1>Customers</h1>
+</div>
+
+<form [formGroup]="filterForm" class="filters">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Search name or email</mat-label>
+    <input matInput formControlName="search" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Status</mat-label>
+    <mat-select formControlName="isActive">
+      <mat-option [value]="null">All</mat-option>
+      <mat-option [value]="true">Active</mat-option>
+      <mat-option [value]="false">Deactivated</mat-option>
+    </mat-select>
+  </mat-form-field>
+</form>
+
+@if (result(); as page) {
+  @if (page.items.length === 0) {
+    <app-empty-state icon="group" title="No customers match these filters" />
+  } @else {
+    <div class="table-wrapper" [class.loading]="loading()">
+      <table mat-table [dataSource]="page.items">
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef>Customer</th>
+          <td mat-cell *matCellDef="let customer">
+            <button class="link" (click)="openCustomer(customer)">{{ customer.name }}</button>
+            <div class="muted">{{ customer.email }}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="orders">
+          <th mat-header-cell *matHeaderCellDef>Orders</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.orderCount }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="spent">
+          <th mat-header-cell *matHeaderCellDef>Spent</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.totalSpent | currency: 'USD' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastOrder">
+          <th mat-header-cell *matHeaderCellDef>Last order</th>
+          <td mat-cell *matCellDef="let customer">
+            {{ customer.lastOrderAt ? (customer.lastOrderAt | date: 'mediumDate') : '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="joined">
+          <th mat-header-cell *matHeaderCellDef>Joined</th>
+          <td mat-cell *matCellDef="let customer">{{ customer.createdAt | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let customer">
+            <span class="status" [class.active]="customer.isActive">
+              {{ customer.isActive ? 'Active' : 'Deactivated' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let customer">
+            <button mat-button (click)="openCustomer(customer)">Details</button>
+            <button mat-button (click)="toggleStatus(customer)">
+              {{ customer.isActive ? 'Deactivate' : 'Reactivate' }}
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="page.totalCount"
+      [pageSize]="page.pageSize"
+      [pageIndex]="page.page - 1"
+      [pageSizeOptions]="[20, 50]"
+      (page)="changePage($event)" />
+  }
+}

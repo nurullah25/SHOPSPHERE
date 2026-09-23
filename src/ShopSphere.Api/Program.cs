@@ -12,7 +12,9 @@ using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
 using ShopSphere.Api.Features.Admin;
 using ShopSphere.Api.Features.Admin.Categories;
+using ShopSphere.Api.Features.Admin.Dashboard;
 using ShopSphere.Api.Features.Admin.Inventory;
+using ShopSphere.Api.Features.Admin.Reports;
 using ShopSphere.Api.Features.Admin.Orders;
 using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
@@ -85,6 +87,8 @@ try
     builder.Services.AddScoped<AdminOrderService>();
     builder.Services.AddScoped<InventoryService>();
     builder.Services.AddScoped<ReviewService>();
+    builder.Services.AddScoped<DashboardService>();
+    builder.Services.AddScoped<ReportService>();
     builder.Services.AddScoped<PendingOrderExpiry>();
     builder.Services.Configure<OrderSettings>(builder.Configuration.GetSection(OrderSettings.SectionName));
 

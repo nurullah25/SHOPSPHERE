@@ -1,0 +1,96 @@
+<h2 mat-dialog-title>{{ coupon ? 'Edit coupon' : 'New coupon' }}</h2>
+
+<mat-dialog-content>
+  @if (errorMessage()) {
+    <div class="form-error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="form" class="coupon-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Code</mat-label>
+      <input matInput formControlName="code" placeholder="SUMMER20" />
+      @if (form.controls.code.hasError('required')) {
+        <mat-error>Code is required</mat-error>
+      } @else if (form.controls.code.hasError('pattern')) {
+        <mat-error>Letters, numbers and dashes only</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <input matInput formControlName="description" placeholder="Shown to the customer" />
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="discountType">
+          <mat-option value="Percentage">Percentage off</mat-option>
+          <mat-option value="FixedAmount">Fixed amount off</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ form.controls.discountType.value === 'Percentage' ? 'Percent' : 'Amount (USD)' }}</mat-label>
+        <input matInput type="number" step="0.01" formControlName="discountValue" />
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Minimum order (USD)</mat-label>
+        <input matInput type="number" step="0.01" formControlName="minOrderAmount" />
+        <mat-hint>Optional</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Maximum discount (USD)</mat-label>
+        <input matInput type="number" step="0.01" formControlName="maxDiscountAmount" />
+        <mat-hint>Caps percentage discounts</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Starts</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startsAt" />
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker" />
+        <mat-datepicker #startPicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Expires</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="expiresAt" />
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker" />
+        <mat-datepicker #endPicker />
+      </mat-form-field>
+    </div>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Total uses</mat-label>
+        <input matInput type="number" formControlName="usageLimit" />
+        <mat-hint>Empty for unlimited</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Uses per customer</mat-label>
+        <input matInput type="number" formControlName="usageLimitPerCustomer" />
+        <mat-hint>Empty for unlimited</mat-hint>
+      </mat-form-field>
+    </div>
+
+    <mat-slide-toggle formControlName="isActive">Active</mat-slide-toggle>
+
+    @if (coupon) {
+      <p class="muted">Used {{ coupon.timesUsed }} time(s) so far.</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button [disabled]="saving()" (click)="save()">
+    {{ saving() ? 'Saving...' : 'Save coupon' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,163 @@
+<div class="page-heading">
+  <h1>Reports</h1>
+</div>
+
+<form [formGroup]="filterForm" class="filters">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>From</mat-label>
+    <input matInput [matDatepicker]="fromPicker" formControlName="from" />
+    <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+    <mat-datepicker #fromPicker />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>To</mat-label>
+    <input matInput [matDatepicker]="toPicker" formControlName="to" />
+    <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+    <mat-datepicker #toPicker />
+  </mat-form-field>
+
+  <mat-button-toggle-group formControlName="groupBy" aria-label="Group by">
+    <mat-button-toggle value="day">Daily</mat-button-toggle>
+    <mat-button-toggle value="month">Monthly</mat-button-toggle>
+  </mat-button-toggle-group>
+</form>
+
+<div class="totals" [class.loading]="loading()">
+  <div>
+    <span class="label">Revenue</span>
+    <span class="value">{{ totals().revenue | currency: 'USD' }}</span>
+  </div>
+  <div>
+    <span class="label">Orders</span>
+    <span class="value">{{ totals().orders | number }}</span>
+  </div>
+  <div>
+    <span class="label">Units sold</span>
+    <span class="value">{{ totals().units | number }}</span>
+  </div>
+</div>
+
+<mat-tab-group>
+  <mat-tab label="Sales over time">
+    <mat-card appearance="outlined" class="tab-card">
+      <mat-card-content>
+        <app-bar-chart [points]="revenuePoints()" format="currency" />
+
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th class="right">Orders</th>
+              <th class="right">Units</th>
+              <th class="right">Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of salesByDate(); track row.periodStart) {
+              <tr>
+                <td>{{ row.period }}</td>
+                <td class="right">{{ row.orders }}</td>
+                <td class="right">{{ row.units }}</td>
+                <td class="right">{{ row.revenue | currency: 'USD' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="muted">No sales in this period.</td></tr>
+            }
+          </tbody>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="Top products">
+    <mat-card appearance="outlined" class="tab-card">
+      <mat-card-content>
+        <table mat-table [dataSource]="salesByProduct()">
+          <ng-container matColumnDef="product">
+            <th mat-header-cell *matHeaderCellDef>Product</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.productName }}
+              <div class="muted">{{ row.sku }}</div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="units">
+            <th mat-header-cell *matHeaderCellDef>Units</th>
+            <td mat-cell *matCellDef="let row">{{ row.unitsSold }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="revenue">
+            <th mat-header-cell *matHeaderCellDef>Revenue</th>
+            <td mat-cell *matCellDef="let row">{{ row.revenue | currency: 'USD' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: productColumns"></tr>
+        </table>
+
+        @if (salesByProduct().length === 0) {
+          <p class="muted">No product sales in this period.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="Categories">
+    <mat-card appearance="outlined" class="tab-card">
+      <mat-card-content>
+        <app-bar-chart [points]="categoryPoints()" format="currency" />
+
+        <table mat-table [dataSource]="salesByCategory()">
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let row">{{ row.categoryName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="units">
+            <th mat-header-cell *matHeaderCellDef>Units</th>
+            <td mat-cell *matCellDef="let row">{{ row.unitsSold }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="revenue">
+            <th mat-header-cell *matHeaderCellDef>Revenue</th>
+            <td mat-cell *matCellDef="let row">{{ row.revenue | currency: 'USD' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="categoryColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: categoryColumns"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="Order status">
+    <mat-card appearance="outlined" class="tab-card">
+      <mat-card-content>
+        <p class="muted">
+          This report counts every order, including cancelled and unpaid ones, so it won't match the revenue above.
+        </p>
+
+        <table mat-table [dataSource]="orderStatus()">
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let row"><app-order-status-chip [status]="row.status" /></td>
+          </ng-container>
+
+          <ng-container matColumnDef="orders">
+            <th mat-header-cell *matHeaderCellDef>Orders</th>
+            <td mat-cell *matCellDef="let row">{{ row.orders }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef>Order value</th>
+            <td mat-cell *matCellDef="let row">{{ row.total | currency: 'USD' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="statusColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: statusColumns"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>
