@@ -18,7 +18,7 @@ export interface BarChartPoint {
         @for (bar of bars(); track bar.label + $index) {
           <div class="column" [title]="bar.label + ': ' + formatValue(bar.value)">
             <div class="bar" [style.height.%]="bar.height"></div>
-            <span class="label">{{ bar.label }}</span>
+            <span class="label">{{ bar.showLabel ? bar.label : '' }}</span>
           </div>
         }
       </div>
@@ -55,6 +55,8 @@ export interface BarChartPoint {
 
     .bar {
       width: 100%;
+      /* Keeps a single data point from stretching across the whole chart */
+      max-width: 64px;
       min-height: 2px;
       border-radius: 4px 4px 0 0;
       background: var(--mat-sys-primary);
@@ -65,9 +67,8 @@ export interface BarChartPoint {
       font: var(--mat-sys-label-small);
       color: var(--mat-sys-on-surface-variant);
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
+      /* Labels are only drawn on some columns, so they can spill into the gap */
+      overflow: visible;
     }
 
     .scale {
@@ -94,10 +95,16 @@ export class BarChart {
 
   protected readonly bars = computed(() => {
     const max = this.max();
-    return this.points().map(point => ({
+    const points = this.points();
+
+    // With many bars there is no room for every label, so show every nth
+    const labelEvery = Math.ceil(points.length / 10);
+
+    return points.map((point, index) => ({
       label: point.label,
       value: point.value,
-      height: max === 0 ? 0 : Math.round((point.value / max) * 100)
+      height: max === 0 ? 0 : Math.round((point.value / max) * 100),
+      showLabel: points.length <= 12 || index % labelEvery === 0
     }));
   });
 

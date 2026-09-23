@@ -1,0 +1,282 @@
+{
+  "info": {
+    "name": "ShopSphere API",
+    "description": "Single-vendor e-commerce API. Run the API first (https://localhost:7001), then call Auth > Login as admin or customer: the access token is stored automatically for the other requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:7001" },
+    { "key": "accessToken", "value": "" },
+    { "key": "orderNumber", "value": "" },
+    { "key": "productId", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.customer@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"New\",\n  \"lastName\": \"Customer\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@shopsphere.local\",\n  \"password\": \"Customer#12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('accessToken', pm.response.json().accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@shopsphere.local\",\n  \"password\": \"Admin#12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh (uses the HttpOnly cookie)",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/auth/refresh" }
+        },
+        { "name": "Me", "request": { "method": "GET", "url": "{{baseUrl}}/api/auth/me" } },
+        { "name": "Logout", "request": { "method": "POST", "url": "{{baseUrl}}/api/auth/logout" } }
+      ]
+    },
+    {
+      "name": "Catalog",
+      "item": [
+        { "name": "Category tree", "request": { "method": "GET", "url": "{{baseUrl}}/api/categories" } },
+        {
+          "name": "Search products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/products?category=kitchen&minPrice=20&maxPrice=60&inStock=true&sort=price_asc&page=1&pageSize=12",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "category", "value": "kitchen" },
+                { "key": "minPrice", "value": "20" },
+                { "key": "maxPrice", "value": "60" },
+                { "key": "inStock", "value": "true" },
+                { "key": "sort", "value": "price_asc" },
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "12" }
+              ]
+            }
+          }
+        },
+        { "name": "Product details", "request": { "method": "GET", "url": "{{baseUrl}}/api/products/cast-iron-skillet-12-inch" } },
+        { "name": "Product reviews", "request": { "method": "GET", "url": "{{baseUrl}}/api/products/{{productId}}/reviews" } }
+      ]
+    },
+    {
+      "name": "Cart and wishlist",
+      "item": [
+        { "name": "Get cart", "request": { "method": "GET", "url": "{{baseUrl}}/api/cart" } },
+        {
+          "name": "Add to cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/cart/items",
+            "body": { "mode": "raw", "raw": "{\n  \"productId\": {{productId}},\n  \"quantity\": 2\n}" }
+          }
+        },
+        {
+          "name": "Update quantity",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/cart/items/{{productId}}",
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 1\n}" }
+          }
+        },
+        { "name": "Remove from cart", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/cart/items/{{productId}}" } },
+        { "name": "Wishlist", "request": { "method": "GET", "url": "{{baseUrl}}/api/wishlist" } },
+        { "name": "Add to wishlist", "request": { "method": "POST", "url": "{{baseUrl}}/api/wishlist/{{productId}}" } },
+        { "name": "Move to cart", "request": { "method": "POST", "url": "{{baseUrl}}/api/wishlist/{{productId}}/move-to-cart" } }
+      ]
+    },
+    {
+      "name": "Checkout and orders",
+      "item": [
+        {
+          "name": "Checkout summary",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/checkout/summary",
+            "body": { "mode": "raw", "raw": "{\n  \"couponCode\": \"WELCOME10\"\n}" }
+          }
+        },
+        {
+          "name": "Place order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('orderNumber', pm.response.json().orderNumber);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/checkout",
+            "description": "Payment tokens: tok_success, tok_declined, tok_insufficient_funds",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": null,\n  \"paymentToken\": \"tok_success\",\n  \"shippingAddress\": {\n    \"fullName\": \"Sarah Mitchell\",\n    \"line1\": \"742 Maple Avenue\",\n    \"city\": \"Portland\",\n    \"state\": \"OR\",\n    \"postalCode\": \"97205\",\n    \"country\": \"United States\",\n    \"saveToAddressBook\": false\n  }\n}"
+            }
+          }
+        },
+        { "name": "My orders", "request": { "method": "GET", "url": "{{baseUrl}}/api/orders?page=1&pageSize=10" } },
+        { "name": "Order details", "request": { "method": "GET", "url": "{{baseUrl}}/api/orders/{{orderNumber}}" } },
+        {
+          "name": "Retry payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/orders/{{orderNumber}}/payments",
+            "body": { "mode": "raw", "raw": "{\n  \"paymentToken\": \"tok_success\"\n}" }
+          }
+        },
+        {
+          "name": "Cancel order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/orders/{{orderNumber}}/cancel",
+            "body": { "mode": "raw", "raw": "{\n  \"reason\": \"Ordered the wrong size\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        { "name": "Profile", "request": { "method": "GET", "url": "{{baseUrl}}/api/account/profile" } },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/account/profile",
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Sarah\",\n  \"lastName\": \"Mitchell\",\n  \"phoneNumber\": \"555-0142\"\n}" }
+          }
+        },
+        { "name": "Addresses", "request": { "method": "GET", "url": "{{baseUrl}}/api/account/addresses" } }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Run Auth > Login as admin first",
+      "item": [
+        { "name": "Dashboard", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/dashboard?days=30" } },
+        { "name": "Products", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/products?page=1&pageSize=20" } },
+        {
+          "name": "Create product",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/admin/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Copper Moscow Mule Mugs (Set of 4)\",\n  \"sku\": \"TW-MUL-004\",\n  \"description\": \"Hammered copper mugs with a stainless lining.\",\n  \"price\": 58,\n  \"discountPrice\": 49,\n  \"categoryId\": 7,\n  \"stockQuantity\": 25,\n  \"lowStockThreshold\": 5,\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        { "name": "Inventory", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/inventory?lowStock=true" } },
+        {
+          "name": "Adjust stock",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/admin/inventory/{{productId}}/adjustments",
+            "body": { "mode": "raw", "raw": "{\n  \"quantityChange\": 20,\n  \"reason\": \"Restock\",\n  \"note\": \"Delivery from supplier\"\n}" }
+          }
+        },
+        { "name": "Orders", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/orders?status=Confirmed" } },
+        {
+          "name": "Change order status",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/admin/orders/1/status",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Processing\",\n  \"note\": \"Picking in warehouse 2\"\n}" }
+          }
+        },
+        { "name": "Customers", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/customers" } },
+        { "name": "Coupons", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/coupons" } },
+        { "name": "Sales by date", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/reports/sales-by-date?groupBy=day" } },
+        { "name": "Sales by product", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/reports/sales-by-product?top=10" } },
+        { "name": "Activity log", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/audit-logs" } }
+      ]
+    }
+  ]
+}

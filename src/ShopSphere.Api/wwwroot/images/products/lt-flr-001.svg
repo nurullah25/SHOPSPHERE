@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Arc Floor Lamp">
+  <rect width="600" height="600" fill="#fdf6e6"/>
+  <circle cx="500" cy="95" r="150" fill="#e6c15f" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#9a7a1c" opacity="0.12"/>
+  <path d="M225 210 L375 210 L340 120 L260 120 Z" fill="#e6c15f"/>
+<rect x="292" y="210" width="16" height="130" fill="#9a7a1c"/>
+<rect x="240" y="340" width="120" height="22" rx="11" fill="#9a7a1c"/>
+<circle cx="300" cy="235" r="18" fill="#ffffff" opacity="0.7"/>
+</svg>

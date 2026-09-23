@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Framed Botanical Prints (Set of 3)">
+  <rect width="600" height="600" fill="#f0f0f4"/>
+  <circle cx="500" cy="95" r="150" fill="#a6a3bd" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#5a5677" opacity="0.12"/>
+  <circle cx="300" cy="245" r="110" fill="#a6a3bd"/>
+<circle cx="300" cy="245" r="84" fill="#ffffff" opacity="0.75"/>
+<rect x="286" y="180" width="12" height="70" rx="6" fill="#5a5677"/>
+<rect x="298" y="239" width="58" height="12" rx="6" fill="#5a5677"/>
+</svg>

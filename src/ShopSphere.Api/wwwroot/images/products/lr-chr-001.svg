@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Velvet Accent Chair">
+  <rect width="600" height="600" fill="#eef1f8"/>
+  <circle cx="500" cy="95" r="150" fill="#9aa7d0" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#4a568f" opacity="0.12"/>
+  <rect x="150" y="215" width="300" height="110" rx="24" fill="#9aa7d0"/>
+<rect x="150" y="170" width="300" height="60" rx="22" fill="#4a568f" opacity="0.55"/>
+<rect x="168" y="325" width="26" height="42" rx="10" fill="#4a568f"/>
+<rect x="406" y="325" width="26" height="42" rx="10" fill="#4a568f"/>
+</svg>

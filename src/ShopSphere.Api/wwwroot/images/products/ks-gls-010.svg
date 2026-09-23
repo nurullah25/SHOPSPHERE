@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Glass Food Storage Containers (10 pc)">
+  <rect width="600" height="600" fill="#f1f5ec"/>
+  <circle cx="500" cy="95" r="150" fill="#a3b18a" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#5f7250" opacity="0.12"/>
+  <rect x="170" y="150" width="120" height="200" rx="14" fill="#a3b18a"/>
+<rect x="310" y="195" width="120" height="155" rx="14" fill="#5f7250" opacity="0.55"/>
+<rect x="160" y="132" width="140" height="22" rx="11" fill="#5f7250"/>
+<rect x="300" y="177" width="140" height="22" rx="11" fill="#5f7250"/>
+</svg>

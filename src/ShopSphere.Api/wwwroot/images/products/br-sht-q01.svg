@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Cotton Percale Sheet Set (Queen)">
+  <rect width="600" height="600" fill="#f6eef3"/>
+  <circle cx="500" cy="95" r="150" fill="#c79fbb" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#7c4f6e" opacity="0.12"/>
+  <rect x="150" y="230" width="300" height="100" rx="18" fill="#c79fbb"/>
+<rect x="150" y="160" width="90" height="170" rx="18" fill="#7c4f6e" opacity="0.5"/>
+<rect x="265" y="200" width="80" height="44" rx="14" fill="#ffffff" opacity="0.8"/>
+<rect x="355" y="200" width="80" height="44" rx="14" fill="#ffffff" opacity="0.8"/>
+</svg>

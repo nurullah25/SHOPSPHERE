@@ -36,6 +36,253 @@ public static class DbSeeder
             await db.SaveChangesAsync();
             logger.LogInformation("Seeded coupons");
         }
+
+        var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+        // Demo order history makes the dashboard and reports meaningful when
+        // someone runs the project for the first time. Tests seed their own data.
+        if (environment.IsDevelopment() && !await db.Orders.AnyAsync())
+        {
+            await SeedDemoOrdersAsync(db);
+            await SeedDemoReviewsAsync(db);
+            logger.LogInformation("Seeded demo order history and reviews");
+        }
+
+        var imagesAdded = await AddDemoImagesAsync(db, environment);
+        if (imagesAdded > 0)
+        {
+            await db.SaveChangesAsync();
+            logger.LogInformation("Attached {Count} demo product images", imagesAdded);
+        }
+    }
+
+    private static async Task SeedDemoOrdersAsync(AppDbContext db)
+    {
+        const decimal flatShipping = 5.99m;
+        const decimal freeShippingThreshold = 75m;
+
+        var customer = await db.Users.FirstAsync(u => u.Role == UserRole.Customer);
+        var address = await db.Addresses.FirstAsync(a => a.UserId == customer.Id);
+        var products = await db.Products.Where(p => p.IsActive && p.StockQuantity > 3).ToListAsync();
+
+        // Fixed seed so everyone who clones the project sees the same history
+        var random = new Random(20260923);
+        var statuses = new[]
+        {
+            OrderStatus.Delivered, OrderStatus.Delivered, OrderStatus.Delivered, OrderStatus.Delivered,
+            OrderStatus.Shipped, OrderStatus.Shipped, OrderStatus.Processing, OrderStatus.Confirmed,
+            OrderStatus.Cancelled
+        };
+
+        for (var daysAgo = 29; daysAgo >= 1; daysAgo--)
+        {
+            // Not every day has orders
+            if (random.Next(0, 10) < 4)
+                continue;
+
+            var placedAt = DateTime.UtcNow.Date.AddDays(-daysAgo).AddHours(random.Next(9, 20)).AddMinutes(random.Next(0, 60));
+            var status = statuses[random.Next(statuses.Length)];
+
+            var order = new Order
+            {
+                UserId = customer.Id,
+                Status = status,
+                PlacedAt = placedAt,
+                CreatedAt = placedAt,
+                ShippingAddress = new OrderAddress
+                {
+                    FullName = address.FullName,
+                    Line1 = address.Line1,
+                    Line2 = address.Line2,
+                    City = address.City,
+                    State = address.State,
+                    PostalCode = address.PostalCode,
+                    Country = address.Country,
+                    PhoneNumber = address.PhoneNumber
+                }
+            };
+
+            foreach (var product in products.OrderBy(_ => random.Next()).Take(random.Next(1, 4)))
+            {
+                var quantity = random.Next(1, 3);
+                order.Items.Add(new OrderItem
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    Sku = product.Sku,
+                    UnitPrice = product.EffectivePrice,
+                    Quantity = quantity,
+                    LineTotal = product.EffectivePrice * quantity
+                });
+
+                // Cancelled orders released their stock again, so only the
+                // others actually took it
+                if (status != OrderStatus.Cancelled)
+                {
+                    product.StockQuantity = Math.Max(0, product.StockQuantity - quantity);
+                    db.InventoryMovements.Add(new InventoryMovement
+                    {
+                        ProductId = product.Id,
+                        QuantityChange = -quantity,
+                        QuantityAfter = product.StockQuantity,
+                        Reason = InventoryChangeReason.Sale,
+                        Order = order,
+                        UserId = customer.Id,
+                        CreatedAt = placedAt
+                    });
+                }
+            }
+
+            order.Subtotal = order.Items.Sum(i => i.LineTotal);
+            order.ShippingCost = order.Subtotal >= freeShippingThreshold ? 0m : flatShipping;
+            order.Total = order.Subtotal + order.ShippingCost;
+
+            order.Payments.Add(new Payment
+            {
+                Amount = order.Total,
+                Status = status == OrderStatus.Cancelled ? PaymentStatus.Refunded : PaymentStatus.Succeeded,
+                Provider = "Mock",
+                TransactionReference = $"mock_seed_{daysAgo:00}",
+                CreatedAt = placedAt,
+                ProcessedAt = placedAt
+            });
+
+            AddStatusHistory(order, status, placedAt);
+
+            if (status == OrderStatus.Cancelled)
+            {
+                order.CancelledAt = placedAt.AddHours(2);
+                order.CancellationReason = "Cancelled by customer";
+            }
+
+            db.Orders.Add(order);
+        }
+
+        await db.SaveChangesAsync();
+    }
+
+    // A few reviews so product pages aren't empty. Only products the demo
+    // customer actually received, which is the rule the API enforces.
+    private static async Task SeedDemoReviewsAsync(AppDbContext db)
+    {
+        var comments = new (int Rating, string Title, string Comment)[]
+        {
+            (5, "Exactly what I wanted", "Arrived quickly and looks even better in person."),
+            (4, "Good quality for the price", "Solid build. Took off a star because the colour is slightly darker than the photo."),
+            (5, "Would buy again", "Second one I've ordered, the first has held up for months."),
+            (4, "Happy with it", "Does the job nicely, packaging could be less bulky."),
+            (5, "Great value", "Feels much more expensive than it was."),
+            (3, "Fine, not amazing", "Works as described but the finish scratches easily.")
+        };
+
+        var customerId = await db.Users.Where(u => u.Role == UserRole.Customer).Select(u => u.Id).FirstAsync();
+
+        var productIds = await db.OrderItems
+            .Where(i => i.Order.UserId == customerId && i.Order.Status == OrderStatus.Delivered)
+            .Select(i => i.ProductId)
+            .Distinct()
+            .Take(comments.Length)
+            .ToListAsync();
+
+        for (var i = 0; i < productIds.Count; i++)
+        {
+            var (rating, title, comment) = comments[i];
+            db.Reviews.Add(new Review
+            {
+                ProductId = productIds[i],
+                UserId = customerId,
+                Rating = rating,
+                Title = title,
+                Comment = comment,
+                CreatedAt = DateTime.UtcNow.AddDays(-i - 1)
+            });
+        }
+
+        await db.SaveChangesAsync();
+
+        // Keep the rating shown on product cards in step with the reviews
+        foreach (var productId in productIds)
+        {
+            var stats = await db.Reviews
+                .Where(r => r.ProductId == productId)
+                .GroupBy(r => r.ProductId)
+                .Select(g => new { Count = g.Count(), Average = g.Average(r => (double)r.Rating) })
+                .SingleAsync();
+
+            await db.Products
+                .Where(p => p.Id == productId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(p => p.ReviewCount, stats.Count)
+                    .SetProperty(p => p.AverageRating, Math.Round((decimal)stats.Average, 2)));
+        }
+    }
+
+    // Walks the order through the statuses it must have passed through
+    private static void AddStatusHistory(Order order, OrderStatus finalStatus, DateTime placedAt)
+    {
+        var timeline = new List<OrderStatus> { OrderStatus.Pending };
+
+        if (finalStatus == OrderStatus.Cancelled)
+        {
+            timeline.Add(OrderStatus.Confirmed);
+            timeline.Add(OrderStatus.Cancelled);
+        }
+        else
+        {
+            foreach (var status in new[] { OrderStatus.Confirmed, OrderStatus.Processing, OrderStatus.Shipped, OrderStatus.Delivered })
+            {
+                timeline.Add(status);
+                if (status == finalStatus)
+                    break;
+            }
+        }
+
+        OrderStatus? previous = null;
+        for (var i = 0; i < timeline.Count; i++)
+        {
+            order.StatusHistory.Add(new OrderStatusHistory
+            {
+                FromStatus = previous,
+                ToStatus = timeline[i],
+                ChangedAt = placedAt.AddHours(i * 6)
+            });
+            previous = timeline[i];
+        }
+    }
+
+    // Demo artwork lives in wwwroot/images/products/{sku}.svg. Products that
+    // already have an image (uploaded through the admin) are left alone.
+    private static async Task<int> AddDemoImagesAsync(AppDbContext db, IWebHostEnvironment environment)
+    {
+        var webRoot = environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot");
+        var imageFolder = Path.Combine(webRoot, "images", "products");
+
+        if (!Directory.Exists(imageFolder))
+            return 0;
+
+        var products = await db.Products
+            .Where(p => !p.Images.Any())
+            .Select(p => new { p.Id, p.Sku, p.Name })
+            .ToListAsync();
+
+        var added = 0;
+        foreach (var product in products)
+        {
+            var fileName = $"{product.Sku.ToLowerInvariant()}.svg";
+            if (!File.Exists(Path.Combine(imageFolder, fileName)))
+                continue;
+
+            db.ProductImages.Add(new ProductImage
+            {
+                ProductId = product.Id,
+                Url = $"/images/products/{fileName}",
+                AltText = product.Name,
+                IsMain = true
+            });
+            added++;
+        }
+
+        return added;
     }
 
     private static void SeedUsers(AppDbContext db, IConfiguration config)

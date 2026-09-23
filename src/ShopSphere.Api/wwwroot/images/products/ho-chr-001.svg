@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Ergonomic Mesh Office Chair">
+  <rect width="600" height="600" fill="#eef4f4"/>
+  <circle cx="500" cy="95" r="150" fill="#8fb5b0" opacity="0.18"/>
+  <circle cx="90" cy="520" r="120" fill="#436b66" opacity="0.12"/>
+  <rect x="150" y="215" width="300" height="24" rx="12" fill="#436b66"/>
+<rect x="175" y="239" width="22" height="110" rx="8" fill="#8fb5b0"/>
+<rect x="403" y="239" width="22" height="110" rx="8" fill="#8fb5b0"/>
+<rect x="245" y="150" width="110" height="65" rx="10" fill="#8fb5b0"/>
+</svg>
