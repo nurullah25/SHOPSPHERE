@@ -1,0 +1,44 @@
+<div class="filters">
+  <section>
+    <h3>Categories</h3>
+    <ul class="category-list">
+      <li>
+        <button type="button" [class.selected]="!query().category" (click)="selectCategory(undefined)">
+          All products
+        </button>
+      </li>
+      @for (item of flatCategories; track item.node.id) {
+        <li [style.padding-left.px]="item.depth * 12">
+          <button
+            type="button"
+            [class.selected]="query().category === item.node.slug"
+            (click)="selectCategory(item.node.slug)">
+            {{ item.node.name }}
+          </button>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section>
+    <h3>Price</h3>
+    <form [formGroup]="priceForm" class="price-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Min price</mat-label>
+        <input matInput type="number" min="0" formControlName="minPrice" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Max price</mat-label>
+        <input matInput type="number" min="0" formControlName="maxPrice" />
+      </mat-form-field>
+    </form>
+  </section>
+
+  <section>
+    <mat-checkbox [checked]="query().inStock === true" (change)="toggleInStock($event.checked)">
+      In stock only
+    </mat-checkbox>
+  </section>
+
+  <button mat-stroked-button type="button" (click)="clearAll()">Clear filters</button>
+</div>

@@ -1,0 +1,48 @@
+<div class="page-heading">
+  <div>
+    <h1>Categories</h1>
+    <p class="muted">Categories can be nested. Products always belong to one category.</p>
+  </div>
+  <button mat-flat-button (click)="openDialog(null)">
+    <mat-icon>add</mat-icon>
+    New category
+  </button>
+</div>
+
+<div class="category-table" [class.loading]="loading()">
+  <div class="row header">
+    <span>Name</span>
+    <span class="center">Products</span>
+    <span class="center">Status</span>
+    <span></span>
+  </div>
+
+  @for (item of categories(); track item.node.id) {
+    <div class="row">
+      <span class="name" [style.padding-left.px]="item.depth * 20">
+        @if (item.depth > 0) {
+          <mat-icon class="tree-icon">subdirectory_arrow_right</mat-icon>
+        }
+        {{ item.node.name }}
+        <span class="slug">/{{ item.node.slug }}</span>
+      </span>
+      <span class="center">{{ item.node.productCount }}</span>
+      <span class="center">
+        <span class="status" [class.active]="item.node.isActive">
+          {{ item.node.isActive ? 'Active' : 'Hidden' }}
+        </span>
+      </span>
+      <span class="actions">
+        <button mat-icon-button (click)="openDialog(null, item.node.id)" matTooltip="Add subcategory">
+          <mat-icon>add</mat-icon>
+        </button>
+        <button mat-icon-button (click)="openDialog(item.node)" matTooltip="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteCategory(item.node)" matTooltip="Delete">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </span>
+    </div>
+  }
+</div>

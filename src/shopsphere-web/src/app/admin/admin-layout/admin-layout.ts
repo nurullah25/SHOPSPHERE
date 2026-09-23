@@ -31,6 +31,8 @@ export class AdminLayout {
   );
 
   protected readonly navItems: AdminNavItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', path: '/admin' }
+    { label: 'Dashboard', icon: 'dashboard', path: '/admin' },
+    { label: 'Products', icon: 'inventory_2', path: '/admin/products' },
+    { label: 'Categories', icon: 'category', path: '/admin/categories' }
   ];
 }

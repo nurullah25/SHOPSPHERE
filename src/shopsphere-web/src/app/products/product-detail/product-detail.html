@@ -1,0 +1,83 @@
+@if (notFound()) {
+  <app-empty-state
+    icon="search_off"
+    title="Product not found"
+    message="This product may have been removed or is no longer available.">
+    <a mat-flat-button routerLink="/products">Browse products</a>
+  </app-empty-state>
+} @else if (product(); as item) {
+  <div class="page-container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a routerLink="/products">All products</a>
+      @for (link of item.breadcrumb; track link.slug) {
+        <mat-icon>chevron_right</mat-icon>
+        <a [routerLink]="['/products']" [queryParams]="{ category: link.slug }">{{ link.name }}</a>
+      }
+    </nav>
+
+    <div class="detail">
+      <div class="gallery">
+        <app-product-photo
+          class="main-photo"
+          [url]="selectedImage()?.url ?? null"
+          [alt]="selectedImage()?.altText ?? item.name" />
+
+        @if (item.images.length > 1) {
+          <div class="thumbnails">
+            @for (image of item.images; track image.id; let i = $index) {
+              <button
+                type="button"
+                class="thumbnail"
+                [class.selected]="i === selectedImageIndex()"
+                (click)="selectedImageIndex.set(i)"
+                [attr.aria-label]="'Show image ' + (i + 1)">
+                <app-product-photo [url]="image.url" [alt]="image.altText ?? item.name" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="summary">
+        <h1>{{ item.name }}</h1>
+
+        <div class="meta">
+          @if (item.reviewCount > 0) {
+            <app-rating-stars [rating]="item.averageRating" [count]="item.reviewCount" />
+          } @else {
+            <span class="muted">No reviews yet</span>
+          }
+          <span class="muted">SKU {{ item.sku }}</span>
+        </div>
+
+        <app-price [price]="item.price" [discountPrice]="item.discountPrice" size="large" />
+
+        <div class="stock">
+          @if (item.stockQuantity === 0) {
+            <span class="out">Out of stock</span>
+          } @else if (item.lowStock) {
+            <span class="low">Only {{ item.stockQuantity }} left in stock</span>
+          } @else {
+            <span class="in">In stock</span>
+          }
+        </div>
+
+        <mat-divider />
+
+        <p class="description">{{ item.description }}</p>
+
+        <div class="shipping-note">
+          <mat-icon>local_shipping</mat-icon>
+          <span>Free shipping on orders over $75</span>
+        </div>
+      </div>
+    </div>
+  </div>
+} @else if (loading()) {
+  <div class="page-container">
+    <div class="detail">
+      <div class="skeleton gallery-skeleton"></div>
+      <div class="skeleton summary-skeleton"></div>
+    </div>
+  </div>
+}

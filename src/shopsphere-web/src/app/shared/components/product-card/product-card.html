@@ -1,0 +1,26 @@
+@let item = product();
+<a class="card" [routerLink]="['/products', item.slug]">
+  <div class="image-wrapper">
+    <app-product-photo [url]="item.imageUrl" [alt]="item.name" />
+    @if (!item.inStock) {
+      <span class="badge out">Out of stock</span>
+    } @else if (item.discountPrice !== null) {
+      <span class="badge sale">Sale</span>
+    }
+  </div>
+
+  <div class="info">
+    <span class="category">{{ item.categoryName }}</span>
+    <h3 class="name">{{ item.name }}</h3>
+
+    @if (item.reviewCount > 0) {
+      <app-rating-stars [rating]="item.averageRating" [count]="item.reviewCount" />
+    }
+
+    <app-price [price]="item.price" [discountPrice]="item.discountPrice" />
+
+    @if (item.lowStock) {
+      <span class="low-stock">Only a few left</span>
+    }
+  </div>
+</a>

@@ -8,6 +8,15 @@
     <a mat-button routerLink="/products" routerLinkActive="active">Shop</a>
   </nav>
 
+  <form class="search" (ngSubmit)="submitSearch()">
+    <mat-icon>search</mat-icon>
+    <input
+      type="search"
+      placeholder="Search products"
+      aria-label="Search products"
+      [formControl]="search" />
+  </form>
+
   <span class="spacer"></span>
 
   <a mat-icon-button routerLink="/wishlist" aria-label="Wishlist">

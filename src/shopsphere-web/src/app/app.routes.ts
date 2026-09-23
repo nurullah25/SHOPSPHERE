@@ -17,6 +17,15 @@ export const routes: Routes = [
         title: 'ShopSphere'
       },
       {
+        path: 'products',
+        loadComponent: () => import('./products/product-list/product-list').then(m => m.ProductList),
+        title: 'Products | ShopSphere'
+      },
+      {
+        path: 'products/:slug',
+        loadComponent: () => import('./products/product-detail/product-detail').then(m => m.ProductDetail)
+      },
+      {
         path: 'login',
         canActivate: [guestGuard],
         loadComponent: () => import('./auth/login/login').then(m => m.Login),

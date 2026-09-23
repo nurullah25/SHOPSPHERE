@@ -5,3 +5,34 @@
     <a mat-flat-button routerLink="/products">Start shopping</a>
   </div>
 </section>
+
+<section class="page-container">
+  <h2>Shop by category</h2>
+  <div class="category-grid">
+    @for (category of categories(); track category.id) {
+      <a class="category-tile" [routerLink]="['/products']" [queryParams]="{ category: category.slug }">
+        <mat-icon>category</mat-icon>
+        <span class="name">{{ category.name }}</span>
+        <span class="children">{{ category.children.length }} subcategories</span>
+      </a>
+    }
+  </div>
+</section>
+
+<section class="page-container">
+  <div class="section-heading">
+    <h2>New arrivals</h2>
+    <a mat-button routerLink="/products" [queryParams]="{ sort: 'newest' }">
+      View all
+      <mat-icon iconPositionEnd>chevron_right</mat-icon>
+    </a>
+  </div>
+
+  <div class="product-grid">
+    @for (product of newArrivals(); track product.id) {
+      <app-product-card [product]="product" />
+    } @empty {
+      <p class="muted">Products will appear here once the catalog is loaded.</p>
+    }
+  </div>
+</section>

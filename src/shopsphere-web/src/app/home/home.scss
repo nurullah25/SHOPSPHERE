@@ -13,3 +13,59 @@
     margin: 0 0 24px;
   }
 }
+
+h2 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 16px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.category-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container-lowest);
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    background: var(--mat-sys-surface-container);
+  }
+
+  .name {
+    font: var(--mat-sys-title-medium);
+  }
+
+  .children {
+    font: var(--mat-sys-body-small);
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  mat-icon {
+    color: var(--mat-sys-primary);
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+}

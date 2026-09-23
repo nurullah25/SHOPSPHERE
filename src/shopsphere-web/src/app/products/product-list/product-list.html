@@ -1,0 +1,79 @@
+<div class="page-container listing">
+  <aside class="sidebar" [class.open]="filtersOpen()">
+    <app-product-filters
+      [categories]="categories()"
+      [query]="query()"
+      (filterChange)="applyFilters($event)" />
+  </aside>
+
+  <div class="results">
+    <header class="results-header">
+      <div>
+        <h1>{{ categoryName() ?? 'All products' }}</h1>
+        @if (result(); as page) {
+          <span class="count">{{ page.totalCount }} {{ page.totalCount === 1 ? 'product' : 'products' }}</span>
+        }
+      </div>
+
+      <div class="controls">
+        <button mat-stroked-button class="filter-toggle" (click)="filtersOpen.set(!filtersOpen())">
+          <mat-icon>tune</mat-icon>
+          Filters
+        </button>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="sort-field">
+          <mat-label>Sort by</mat-label>
+          <mat-select [value]="query().sort" (valueChange)="changeSort($event)">
+            @for (option of sortOptions; track option.value) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </header>
+
+    @if (query().search) {
+      <mat-chip-set class="active-filters">
+        <mat-chip (removed)="clearSearch()">
+          Search: "{{ query().search }}"
+          <button matChipRemove aria-label="Clear search">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip>
+      </mat-chip-set>
+    }
+
+    @if (failed()) {
+      <app-empty-state
+        icon="error_outline"
+        title="Couldn't load products"
+        message="Something went wrong while loading the catalog. Please try again." />
+    } @else if (loading() && !result()) {
+      <div class="product-grid">
+        @for (placeholder of [1, 2, 3, 4, 5, 6, 7, 8]; track placeholder) {
+          <div class="skeleton"></div>
+        }
+      </div>
+    } @else if (result(); as page) {
+      @if (page.items.length === 0) {
+        <app-empty-state
+          icon="search_off"
+          title="No products found"
+          message="Try removing a filter or searching for something else." />
+      } @else {
+        <div class="product-grid" [class.loading]="loading()">
+          @for (product of page.items; track product.id) {
+            <app-product-card [product]="product" />
+          }
+        </div>
+
+        <mat-paginator
+          [length]="page.totalCount"
+          [pageSize]="page.pageSize"
+          [pageIndex]="page.page - 1"
+          [pageSizeOptions]="[12, 24, 48]"
+          (page)="changePage($event)" />
+      }
+    }
+  </div>
+</div>

@@ -21,6 +21,31 @@
   color: var(--mat-sys-primary);
 }
 
+.search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 120px;
+  min-width: 0;
+  max-width: 360px;
+  margin-left: 8px;
+  padding: 0 12px;
+  height: 40px;
+  border-radius: 20px;
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    color: var(--mat-sys-on-surface);
+    font: var(--mat-sys-body-medium);
+  }
+}
+
 .spacer {
   flex: 1;
 }
@@ -46,6 +71,25 @@
   .nav-links,
   .account-name {
     display: none;
+  }
+
+  .header {
+    padding: 0 8px;
+    gap: 4px;
+  }
+
+  .search {
+    max-width: none;
+    padding: 0 8px;
+  }
+
+  .brand {
+    margin-right: 4px;
+  }
+
+  .sign-in,
+  .account-button {
+    margin-left: 0;
   }
 
   .brand span {
