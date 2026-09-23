@@ -76,6 +76,18 @@ dotnet ef database update --project src/ShopSphere.Api
 | Admin | admin@shopsphere.local | Admin#12345 |
 | Customer | demo@shopsphere.local | Customer#12345 |
 
+### Test payments
+
+Checkout uses a mock payment gateway, so no real payment data is involved. The checkout page offers three test cards:
+
+| Card | Result |
+|---|---|
+| Visa ending 4242 | Payment approved |
+| Visa ending 0002 | Card declined |
+| Mastercard ending 9995 | Insufficient funds |
+
+A declined payment leaves the order in Pending with its stock reserved, and the confirmation page offers a retry.
+
 The seed also creates a category tree, 32 products (some discounted, low on stock, out of stock or inactive) and four coupons: `WELCOME10`, `SAVE20`, `FLASH50`, and the expired `SUMMER25`.
 
 ### Run the Angular app
@@ -96,6 +108,7 @@ Open http://localhost:4200. Requests to `/api` are forwarded to the API by the A
 | `Jwt:Key` | User Secrets / environment variable | Required, never committed |
 | `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays` | appsettings.json | 15 minutes / 7 days |
 | `Seed:*` | appsettings.Development.json | Demo account credentials, Development only |
+| `Shipping:FlatRate`, `Shipping:FreeShippingThreshold` | appsettings.json | $5.99, free over $75 |
 
 In production, settings would come from environment variables (e.g. `Jwt__Key`) or a secret store.
 
@@ -115,7 +128,7 @@ The integration tests start the API in memory with `WebApplicationFactory` and r
 - [x] Phase 3: Catalog API and admin catalog management
 - [x] Phase 4: Storefront UI and admin catalog screens
 - [x] Phase 5: Cart and wishlist
-- [ ] Phase 6: Coupons, checkout and mock payment
+- [x] Phase 6: Coupons, checkout and mock payment
 - [ ] Phase 7: Orders and status workflow
 - [ ] Phase 8: Inventory management
 - [ ] Phase 9: Reviews

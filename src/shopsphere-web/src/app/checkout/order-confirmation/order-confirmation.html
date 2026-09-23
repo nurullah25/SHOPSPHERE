@@ -1,0 +1,141 @@
+<div class="page-container">
+  @if (order(); as details) {
+    <div class="status-banner" [class.pending]="details.paymentStatus === 'Failed'">
+      <mat-icon>{{ details.paymentStatus === 'Failed' ? 'error_outline' : 'check_circle' }}</mat-icon>
+      <div>
+        <h1>
+          {{ details.paymentStatus === 'Failed' ? 'Payment could not be processed' : 'Thanks for your order!' }}
+        </h1>
+        <p>
+          Order <strong>{{ details.orderNumber }}</strong> &middot;
+          placed {{ details.placedAt | date: 'medium' }} &middot;
+          status {{ details.status }}
+        </p>
+      </div>
+    </div>
+
+    @if (details.paymentStatus === 'Failed') {
+      <mat-card appearance="outlined" class="retry-card">
+        <mat-card-content>
+          <p>
+            {{ details.paymentFailureReason }}
+            Your items stay reserved for 30 minutes, so you can try another payment method.
+          </p>
+
+          <mat-radio-group [formControl]="retryToken" class="payment-options">
+            @for (method of paymentMethods; track method.token) {
+              <mat-radio-button [value]="method.token">
+                {{ method.label }} <span class="muted">({{ method.hint }})</span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+
+          <button mat-flat-button [disabled]="retrying()" (click)="retryPayment()">
+            {{ retrying() ? 'Processing...' : 'Try payment again' }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    <div class="details-layout">
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Items</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @for (item of details.items; track item.productId) {
+            <div class="order-item">
+              <app-product-photo class="photo" [url]="item.imageUrl" [alt]="item.productName" />
+              <div class="item-details">
+                @if (item.slug) {
+                  <a [routerLink]="['/products', item.slug]" class="name">{{ item.productName }}</a>
+                } @else {
+                  <span class="name">{{ item.productName }}</span>
+                }
+                <span class="muted">SKU {{ item.sku }}</span>
+                <span class="muted">{{ item.quantity }} × {{ item.unitPrice | currency: 'USD' }}</span>
+              </div>
+              <span class="line-total">{{ item.lineTotal | currency: 'USD' }}</span>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <div class="side">
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Payment summary</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="line">
+              <span>Subtotal</span>
+              <span>{{ details.subtotal | currency: 'USD' }}</span>
+            </div>
+            @if (details.discountAmount > 0) {
+              <div class="line discount">
+                <span>Discount ({{ details.couponCode }})</span>
+                <span>-{{ details.discountAmount | currency: 'USD' }}</span>
+              </div>
+            }
+            <div class="line">
+              <span>Shipping</span>
+              <span>
+                @if (details.shippingCost === 0) {
+                  Free
+                } @else {
+                  {{ details.shippingCost | currency: 'USD' }}
+                }
+              </span>
+            </div>
+            <div class="line total">
+              <span>Total</span>
+              <span>{{ details.total | currency: 'USD' }}</span>
+            </div>
+            <p class="muted">Payment status: {{ details.paymentStatus }}</p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Shipping to</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <p class="address">
+              {{ details.shippingAddress.fullName }}<br />
+              {{ details.shippingAddress.line1 }}<br />
+              @if (details.shippingAddress.line2) {
+                {{ details.shippingAddress.line2 }}<br />
+              }
+              {{ details.shippingAddress.city }}
+              @if (details.shippingAddress.state) {
+                , {{ details.shippingAddress.state }}
+              }
+              {{ details.shippingAddress.postalCode }}<br />
+              {{ details.shippingAddress.country }}
+            </p>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Progress</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <ol class="timeline">
+              @for (entry of details.statusHistory; track entry.changedAt) {
+                <li>
+                  <strong>{{ entry.toStatus }}</strong>
+                  <span class="muted">{{ entry.changedAt | date: 'short' }}</span>
+                  @if (entry.note) {
+                    <span class="muted">{{ entry.note }}</span>
+                  }
+                </li>
+              }
+            </ol>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <a mat-flat-button routerLink="/products" class="continue">Continue shopping</a>
+  } @else if (!loading()) {
+    <app-empty-state
+      icon="receipt_long"
+      title="Order not found"
+      message="We couldn't find this order on your account.">
+      <a mat-flat-button routerLink="/products">Browse products</a>
+    </app-empty-state>
+  }
+</div>

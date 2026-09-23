@@ -1,0 +1,223 @@
+<div class="page-container">
+  <h1>Checkout</h1>
+
+  @if (summary(); as details) {
+    @if (details.items.length === 0) {
+      <app-empty-state
+        icon="shopping_cart"
+        title="Your cart is empty"
+        message="Add something to your cart before checking out.">
+        <a mat-flat-button routerLink="/products">Browse products</a>
+      </app-empty-state>
+    } @else {
+      <div class="checkout-layout">
+        <div class="sections">
+          @if (orderError()) {
+            <div class="form-error" role="alert">{{ orderError() }}</div>
+          }
+
+          @if (details.issues.length > 0) {
+            <div class="form-error">
+              <strong>Your cart needs attention:</strong>
+              <ul>
+                @for (issue of details.issues; track issue) {
+                  <li>{{ issue }}</li>
+                }
+              </ul>
+              <a mat-button routerLink="/cart">Go to cart</a>
+            </div>
+          }
+
+          <mat-card appearance="outlined">
+            <mat-card-header><mat-card-title>Shipping address</mat-card-title></mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="checkoutForm">
+                @if (details.savedAddresses.length > 0) {
+                  <mat-radio-group formControlName="addressId" class="address-options">
+                    @for (address of details.savedAddresses; track address.id) {
+                      <mat-radio-button [value]="address.id">
+                        <span class="address-line">{{ address.fullName }}</span>
+                        <span class="address-line muted">
+                          {{ address.line1 }}@if (address.line2) {, {{ address.line2 }}}, {{ address.city }}
+                          {{ address.postalCode }}, {{ address.country }}
+                        </span>
+                      </mat-radio-button>
+                    }
+                    <mat-radio-button [value]="newAddressId">Use a new address</mat-radio-button>
+                  </mat-radio-group>
+                }
+              </form>
+
+              @if (usingNewAddress()) {
+                <form [formGroup]="addressForm" class="address-form">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Full name</mat-label>
+                    <input matInput formControlName="fullName" autocomplete="name" />
+                    @if (addressForm.controls.fullName.hasError('required')) {
+                      <mat-error>Full name is required</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Address</mat-label>
+                    <input matInput formControlName="line1" autocomplete="address-line1" />
+                    @if (addressForm.controls.line1.hasError('required')) {
+                      <mat-error>Address is required</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Apartment, suite (optional)</mat-label>
+                    <input matInput formControlName="line2" autocomplete="address-line2" />
+                  </mat-form-field>
+
+                  <div class="row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>City</mat-label>
+                      <input matInput formControlName="city" autocomplete="address-level2" />
+                      @if (addressForm.controls.city.hasError('required')) {
+                        <mat-error>City is required</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>State (optional)</mat-label>
+                      <input matInput formControlName="state" autocomplete="address-level1" />
+                    </mat-form-field>
+                  </div>
+
+                  <div class="row">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Postal code</mat-label>
+                      <input matInput formControlName="postalCode" autocomplete="postal-code" />
+                      @if (addressForm.controls.postalCode.hasError('required')) {
+                        <mat-error>Postal code is required</mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Country</mat-label>
+                      <input matInput formControlName="country" autocomplete="country-name" />
+                    </mat-form-field>
+                  </div>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Phone (optional)</mat-label>
+                    <input matInput formControlName="phoneNumber" autocomplete="tel" />
+                  </mat-form-field>
+
+                  <mat-checkbox formControlName="saveToAddressBook">Save this address for next time</mat-checkbox>
+                </form>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <mat-card appearance="outlined">
+            <mat-card-header>
+              <mat-card-title>Payment</mat-card-title>
+              <mat-card-subtitle>Demo store: no real payments are processed</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="checkoutForm">
+                <mat-radio-group formControlName="paymentToken" class="payment-options">
+                  @for (method of paymentMethods; track method.token) {
+                    <mat-radio-button [value]="method.token">
+                      <span class="address-line">{{ method.label }}</span>
+                      <span class="address-line muted">{{ method.hint }}</span>
+                    </mat-radio-button>
+                  }
+                </mat-radio-group>
+
+                <mat-form-field appearance="outline" class="notes">
+                  <mat-label>Order notes (optional)</mat-label>
+                  <textarea matInput rows="2" formControlName="notes"></textarea>
+                </mat-form-field>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <mat-card appearance="outlined" class="summary">
+          <mat-card-content>
+            <h2>Order summary</h2>
+
+            @for (item of details.items; track item.productId) {
+              <div class="summary-item">
+                <span class="item-name">{{ item.quantity }} × {{ item.name }}</span>
+                <span>{{ item.lineTotal | currency: 'USD' }}</span>
+              </div>
+            }
+
+            <form [formGroup]="checkoutForm" class="coupon-row" (ngSubmit)="applyCoupon()">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Coupon code</mat-label>
+                <input matInput formControlName="couponCode" [readonly]="!!details.couponCode" />
+              </mat-form-field>
+
+              @if (details.couponCode) {
+                <button mat-button type="button" (click)="removeCoupon()">Remove</button>
+              } @else {
+                <button mat-stroked-button type="submit" [disabled]="couponPending()">Apply</button>
+              }
+            </form>
+
+            @if (couponError()) {
+              <p class="coupon-error">{{ couponError() }}</p>
+            }
+            @if (details.couponCode) {
+              <p class="coupon-ok">
+                <mat-icon>check_circle</mat-icon>
+                {{ details.couponCode }} applied
+              </p>
+            }
+
+            <div class="line">
+              <span>Subtotal</span>
+              <span>{{ details.subtotal | currency: 'USD' }}</span>
+            </div>
+
+            @if (details.discountAmount > 0) {
+              <div class="line discount">
+                <span>Discount</span>
+                <span>-{{ details.discountAmount | currency: 'USD' }}</span>
+              </div>
+            }
+
+            <div class="line">
+              <span>Shipping</span>
+              <span>
+                @if (details.shippingCost === 0) {
+                  Free
+                } @else {
+                  {{ details.shippingCost | currency: 'USD' }}
+                }
+              </span>
+            </div>
+
+            <div class="line total">
+              <span>Total</span>
+              <span>{{ details.total | currency: 'USD' }}</span>
+            </div>
+
+            <button
+              mat-flat-button
+              class="place-order"
+              [disabled]="placingOrder() || details.issues.length > 0"
+              (click)="placeOrder()">
+              {{ placingOrder() ? 'Placing order...' : 'Place order' }}
+            </button>
+
+            <a mat-button routerLink="/cart" class="back-link">Back to cart</a>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  } @else if (!loading()) {
+    <app-empty-state
+      icon="error_outline"
+      title="Checkout unavailable"
+      message="We couldn't load your checkout details. Please try again.">
+      <a mat-flat-button routerLink="/cart">Back to cart</a>
+    </app-empty-state>
+  }
+</div>

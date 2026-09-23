@@ -15,6 +15,10 @@ using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
 using ShopSphere.Api.Features.Cart;
 using ShopSphere.Api.Features.Catalog;
+using ShopSphere.Api.Features.Checkout;
+using ShopSphere.Api.Features.Coupons;
+using ShopSphere.Api.Features.Orders;
+using ShopSphere.Api.Features.Payments;
 using ShopSphere.Api.Features.Wishlist;
 
 Log.Logger = new LoggerConfiguration()
@@ -70,6 +74,11 @@ try
     builder.Services.AddScoped<CatalogService>();
     builder.Services.AddScoped<CartService>();
     builder.Services.AddScoped<WishlistService>();
+    builder.Services.AddScoped<CouponService>();
+    builder.Services.AddScoped<CheckoutService>();
+    builder.Services.AddScoped<OrderService>();
+    builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
+    builder.Services.Configure<ShippingSettings>(builder.Configuration.GetSection(ShippingSettings.SectionName));
     builder.Services.AddScoped<AuditService>();
     builder.Services.AddScoped<AdminProductService>();
     builder.Services.AddScoped<AdminCategoryService>();

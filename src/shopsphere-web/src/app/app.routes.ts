@@ -38,6 +38,18 @@ export const routes: Routes = [
         title: 'Wishlist | ShopSphere'
       },
       {
+        path: 'checkout',
+        canActivate: [authGuard],
+        loadComponent: () => import('./checkout/checkout-page/checkout-page').then(m => m.CheckoutPage),
+        title: 'Checkout | ShopSphere'
+      },
+      {
+        path: 'checkout/success/:orderNumber',
+        canActivate: [authGuard],
+        loadComponent: () => import('./checkout/order-confirmation/order-confirmation').then(m => m.OrderConfirmation),
+        title: 'Order confirmed | ShopSphere'
+      },
+      {
         path: 'login',
         canActivate: [guestGuard],
         loadComponent: () => import('./auth/login/login').then(m => m.Login),
