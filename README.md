@@ -134,5 +134,5 @@ The integration tests start the API in memory with `WebApplicationFactory` and r
 - [x] Phase 8: Inventory management
 - [x] Phase 9: Reviews
 - [x] Phase 10: Admin dashboard, reports, customers, coupon screen
-- [ ] Phase 11: Account pages and polish
+- [x] Phase 11: Account pages, activity log and polish
 - [ ] Phase 12: Documentation, screenshots, Postman collection

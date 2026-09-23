@@ -1,0 +1,36 @@
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 380px;
+  padding-top: 8px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.form-error {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+@media (max-width: 600px) {
+  .address-form {
+    min-width: 0;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

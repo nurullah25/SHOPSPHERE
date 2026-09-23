@@ -1,0 +1,91 @@
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 16px;
+}
+
+.tab-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+button[type='submit'] {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.form-error {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.inline-error {
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.addresses-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.address-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+mat-card.default {
+  border-color: var(--mat-sys-primary);
+}
+
+.badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font: var(--mat-sys-label-small);
+}
+
+.address {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.address-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}

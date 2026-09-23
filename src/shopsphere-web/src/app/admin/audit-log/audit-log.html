@@ -1,0 +1,63 @@
+<div class="page-heading">
+  <div>
+    <h1>Activity log</h1>
+    <p class="muted">Every product, stock, order and customer change made from the admin area.</p>
+  </div>
+
+  <form [formGroup]="filterForm">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Action</mat-label>
+      <mat-select formControlName="action">
+        <mat-option [value]="null">All actions</mat-option>
+        @for (action of actions(); track action) {
+          <mat-option [value]="action">{{ action }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </form>
+</div>
+
+@if (result(); as page) {
+  @if (page.items.length === 0) {
+    <app-empty-state icon="history" title="Nothing logged yet" message="Admin actions will show up here." />
+  } @else {
+    <div class="table-wrapper" [class.loading]="loading()">
+      <table mat-table [dataSource]="page.items">
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>Action</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.action }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="entity">
+          <th mat-header-cell *matHeaderCellDef>Record</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.entityName }} #{{ entry.entityId }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="details">
+          <th mat-header-cell *matHeaderCellDef>Details</th>
+          <td mat-cell *matCellDef="let entry" class="details">{{ formatDetails(entry.details) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="changedBy">
+          <th mat-header-cell *matHeaderCellDef>By</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.changedBy ?? 'System' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="when">
+          <th mat-header-cell *matHeaderCellDef>When</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.createdAt | date: 'short' }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="page.totalCount"
+      [pageSize]="page.pageSize"
+      [pageIndex]="page.page - 1"
+      [pageSizeOptions]="[25, 50, 100]"
+      (page)="changePage($event)" />
+  }
+}

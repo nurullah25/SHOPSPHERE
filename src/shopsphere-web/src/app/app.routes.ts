@@ -52,6 +52,12 @@ export const routes: Routes = [
         title: 'Order confirmed | ShopSphere'
       },
       {
+        path: 'account/profile',
+        canActivate: [authGuard],
+        loadComponent: () => import('./account/account-page/account-page').then(m => m.AccountPage),
+        title: 'My account | ShopSphere'
+      },
+      {
         path: 'account/orders',
         canActivate: [authGuard],
         loadComponent: () => import('./orders/order-list/order-list').then(m => m.OrderList),

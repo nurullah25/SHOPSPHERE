@@ -1,0 +1,143 @@
+<div class="page-container">
+  <h1>My account</h1>
+
+  <mat-tab-group>
+    <mat-tab label="Profile">
+      <div class="tab-body">
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Your details</mat-card-title></mat-card-header>
+          <mat-card-content>
+            @if (profileError()) {
+              <div class="form-error" role="alert">{{ profileError() }}</div>
+            }
+
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+              <div class="row">
+                <mat-form-field appearance="outline">
+                  <mat-label>First name</mat-label>
+                  <input matInput formControlName="firstName" autocomplete="given-name" />
+                  @if (profileForm.controls.firstName.hasError('required')) {
+                    <mat-error>First name is required</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Last name</mat-label>
+                  <input matInput formControlName="lastName" autocomplete="family-name" />
+                  @if (profileForm.controls.lastName.hasError('required')) {
+                    <mat-error>Last name is required</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Phone (optional)</mat-label>
+                <input matInput formControlName="phoneNumber" autocomplete="tel" />
+              </mat-form-field>
+
+              @if (profile(); as details) {
+                <p class="muted">
+                  Signed in as <strong>{{ details.email }}</strong> &middot; member since
+                  {{ details.createdAt | date: 'mediumDate' }}
+                </p>
+              }
+
+              <button mat-flat-button type="submit" [disabled]="savingProfile()">
+                {{ savingProfile() ? 'Saving...' : 'Save changes' }}
+              </button>
+            </form>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined">
+          <mat-card-header><mat-card-title>Password</mat-card-title></mat-card-header>
+          <mat-card-content>
+            @if (passwordError()) {
+              <div class="form-error" role="alert">{{ passwordError() }}</div>
+            }
+
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <mat-form-field appearance="outline">
+                <mat-label>Current password</mat-label>
+                <input matInput type="password" formControlName="currentPassword" autocomplete="current-password" />
+                @if (passwordForm.controls.currentPassword.hasError('required')) {
+                  <mat-error>Enter your current password</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>New password</mat-label>
+                <input matInput type="password" formControlName="newPassword" autocomplete="new-password" />
+                <mat-hint>At least 8 characters, with a letter and a number</mat-hint>
+                @if (passwordForm.controls.newPassword.hasError('minlength')) {
+                  <mat-error>Password must be at least 8 characters</mat-error>
+                } @else if (passwordForm.controls.newPassword.hasError('pattern')) {
+                  <mat-error>Password must contain a letter and a number</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Confirm new password</mat-label>
+                <input matInput type="password" formControlName="confirmPassword" autocomplete="new-password" />
+              </mat-form-field>
+
+              @if (passwordForm.hasError('passwordMismatch') && passwordForm.controls.confirmPassword.touched) {
+                <div class="inline-error">Passwords don't match</div>
+              }
+
+              <button mat-flat-button type="submit" [disabled]="savingPassword()">
+                {{ savingPassword() ? 'Saving...' : 'Change password' }}
+              </button>
+            </form>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Addresses">
+      <div class="tab-body">
+        <div class="addresses-heading">
+          <p class="muted">Saved addresses show up at checkout.</p>
+          <button mat-flat-button (click)="openAddressDialog(null)">
+            <mat-icon>add</mat-icon>
+            Add address
+          </button>
+        </div>
+
+        <div class="address-grid">
+          @for (address of addresses(); track address.id) {
+            <mat-card appearance="outlined" [class.default]="address.isDefault">
+              <mat-card-content>
+                @if (address.isDefault) {
+                  <span class="badge">Default</span>
+                }
+                <p class="address">
+                  <strong>{{ address.fullName }}</strong><br />
+                  {{ address.line1 }}<br />
+                  @if (address.line2) {
+                    {{ address.line2 }}<br />
+                  }
+                  {{ address.city }}@if (address.state) {, {{ address.state }}} {{ address.postalCode }}<br />
+                  {{ address.country }}
+                  @if (address.phoneNumber) {
+                    <br />{{ address.phoneNumber }}
+                  }
+                </p>
+
+                <div class="address-actions">
+                  <button mat-button (click)="openAddressDialog(address)">Edit</button>
+                  @if (!address.isDefault) {
+                    <button mat-button (click)="makeDefault(address)">Make default</button>
+                  }
+                  <button mat-button (click)="deleteAddress(address)">Delete</button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          } @empty {
+            <p class="muted">No addresses saved yet.</p>
+          }
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

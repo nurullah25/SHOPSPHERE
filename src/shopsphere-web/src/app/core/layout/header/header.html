@@ -53,6 +53,10 @@
           <mat-icon>receipt_long</mat-icon>
           <span>My orders</span>
         </a>
+        <a mat-menu-item routerLink="/account/profile">
+          <mat-icon>person</mat-icon>
+          <span>My account</span>
+        </a>
       }
       @if (user.role === 'Admin') {
         <a mat-menu-item routerLink="/admin">

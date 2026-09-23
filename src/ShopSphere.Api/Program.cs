@@ -10,6 +10,7 @@ using Serilog;
 using ShopSphere.Api.Common;
 using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
+using ShopSphere.Api.Features.Account;
 using ShopSphere.Api.Features.Admin;
 using ShopSphere.Api.Features.Admin.Categories;
 using ShopSphere.Api.Features.Admin.Dashboard;
@@ -89,6 +90,7 @@ try
     builder.Services.AddScoped<ReviewService>();
     builder.Services.AddScoped<DashboardService>();
     builder.Services.AddScoped<ReportService>();
+    builder.Services.AddScoped<AccountService>();
     builder.Services.AddScoped<PendingOrderExpiry>();
     builder.Services.Configure<OrderSettings>(builder.Configuration.GetSection(OrderSettings.SectionName));
 

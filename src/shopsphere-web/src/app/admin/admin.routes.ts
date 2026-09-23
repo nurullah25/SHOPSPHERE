@@ -60,6 +60,11 @@ export const ADMIN_ROUTES: Routes = [
         title: 'Reports | ShopSphere Admin'
       },
       {
+        path: 'activity',
+        loadComponent: () => import('./audit-log/audit-log').then(m => m.AuditLog),
+        title: 'Activity log | ShopSphere Admin'
+      },
+      {
         path: 'categories',
         loadComponent: () => import('./categories/admin-categories/admin-categories').then(m => m.AdminCategories),
         title: 'Categories | ShopSphere Admin'

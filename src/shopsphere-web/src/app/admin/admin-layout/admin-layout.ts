@@ -38,6 +38,7 @@ export class AdminLayout {
     { label: 'Orders', icon: 'receipt_long', path: '/admin/orders' },
     { label: 'Customers', icon: 'group', path: '/admin/customers' },
     { label: 'Coupons', icon: 'local_offer', path: '/admin/coupons' },
-    { label: 'Reports', icon: 'insights', path: '/admin/reports' }
+    { label: 'Reports', icon: 'insights', path: '/admin/reports' },
+    { label: 'Activity log', icon: 'history', path: '/admin/activity' }
   ];
 }

@@ -65,6 +65,18 @@ export class AuthService {
     return this.refreshRequest$;
   }
 
+  // Called after the customer edits their profile so the header stays correct
+  refreshCurrentUser(): void {
+    this.http
+      .get<AuthUser>('/api/auth/me', { context: silentErrors() })
+      .pipe(catchError(() => of(null)))
+      .subscribe(user => {
+        if (user) {
+          this.currentUserSubject.next(user);
+        }
+      });
+  }
+
   restoreSession(): Observable<unknown> {
     return this.refresh().pipe(catchError(() => of(null)));
   }
