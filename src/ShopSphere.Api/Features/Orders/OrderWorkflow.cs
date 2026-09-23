@@ -17,7 +17,12 @@ public class OrderWorkflow
         _logger = logger;
     }
 
-    public async Task ChangeStatusAsync(Order order, OrderStatus target, int? changedByUserId, string? note)
+    public async Task ChangeStatusAsync(
+        Order order,
+        OrderStatus target,
+        int? changedByUserId,
+        string? note,
+        InventoryChangeReason restoreReason = InventoryChangeReason.OrderCancelled)
     {
         OrderStatusRules.EnsureTransition(order.Status, target);
 
@@ -25,7 +30,7 @@ public class OrderWorkflow
 
         if (target == OrderStatus.Cancelled)
         {
-            await RestoreStockAsync(order, changedByUserId);
+            await RestoreStockAsync(order, changedByUserId, restoreReason);
             await ReleaseCouponAsync(order);
             RefundSucceededPayments(order, now);
 
@@ -46,7 +51,7 @@ public class OrderWorkflow
         order.Status = target;
     }
 
-    private async Task RestoreStockAsync(Order order, int? changedByUserId)
+    private async Task RestoreStockAsync(Order order, int? changedByUserId, InventoryChangeReason reason)
     {
         foreach (var item in order.Items)
         {
@@ -68,7 +73,7 @@ public class OrderWorkflow
                 ProductId = item.ProductId,
                 QuantityChange = item.Quantity,
                 QuantityAfter = stockAfter[item.ProductId],
-                Reason = InventoryChangeReason.OrderCancelled,
+                Reason = reason,
                 OrderId = order.Id,
                 UserId = changedByUserId,
                 Note = $"Order {order.OrderNumber} cancelled"

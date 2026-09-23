@@ -109,6 +109,7 @@ Open http://localhost:4200. Requests to `/api` are forwarded to the API by the A
 | `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays` | appsettings.json | 15 minutes / 7 days |
 | `Seed:*` | appsettings.Development.json | Demo account credentials, Development only |
 | `Shipping:FlatRate`, `Shipping:FreeShippingThreshold` | appsettings.json | $5.99, free over $75 |
+| `Orders:PendingTimeoutMinutes`, `Orders:ExpiryCheckIntervalMinutes` | appsettings.json | Unpaid orders release their stock after 30 minutes, checked every 5 |
 
 In production, settings would come from environment variables (e.g. `Jwt__Key`) or a secret store.
 
@@ -130,7 +131,7 @@ The integration tests start the API in memory with `WebApplicationFactory` and r
 - [x] Phase 5: Cart and wishlist
 - [x] Phase 6: Coupons, checkout and mock payment
 - [x] Phase 7: Orders and status workflow
-- [ ] Phase 8: Inventory management
+- [x] Phase 8: Inventory management
 - [ ] Phase 9: Reviews
 - [ ] Phase 10: Admin dashboard, reports, customers
 - [ ] Phase 11: Account pages and polish

@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>Adjust stock</h2>
+
+<mat-dialog-content>
+  <p class="product">
+    <strong>{{ item.name }}</strong><br />
+    <span class="muted">SKU {{ item.sku }} &middot; {{ item.stockQuantity }} in stock</span>
+  </p>
+
+  @if (errorMessage()) {
+    <div class="form-error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <form [formGroup]="form" class="adjust-form">
+    <mat-button-toggle-group formControlName="direction" aria-label="Direction">
+      <mat-button-toggle value="add">Add stock</mat-button-toggle>
+      <mat-button-toggle value="remove">Remove stock</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Quantity</mat-label>
+      <input matInput type="number" min="1" formControlName="quantity" />
+      @if (form.controls.quantity.hasError('min')) {
+        <mat-error>Enter at least 1</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Reason</mat-label>
+      <mat-select formControlName="reason">
+        <mat-option value="Restock">Restock (delivery received)</mat-option>
+        <mat-option value="Adjustment">Correction (count, damage, loss)</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Note (optional)</mat-label>
+      <input matInput formControlName="note" placeholder="Shown in the stock history" />
+    </mat-form-field>
+
+    <p class="preview" [class.negative]="stockAfter() < 0">
+      New stock level: <strong>{{ stockAfter() }}</strong>
+      @if (stockAfter() < 0) {
+        <span> — stock can't go below zero</span>
+      }
+    </p>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button [disabled]="saving() || stockAfter() < 0" (click)="save()">
+    {{ saving() ? 'Saving...' : 'Save adjustment' }}
+  </button>
+</mat-dialog-actions>

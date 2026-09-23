@@ -1,0 +1,32 @@
+.adjust-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 320px;
+}
+
+.product {
+  margin: 0 0 12px;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.form-error {
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.preview {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+
+  &.negative {
+    color: var(--mat-sys-error);
+  }
+}

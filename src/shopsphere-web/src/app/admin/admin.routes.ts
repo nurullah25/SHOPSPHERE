@@ -30,6 +30,11 @@ export const ADMIN_ROUTES: Routes = [
         title: 'Edit product | ShopSphere Admin'
       },
       {
+        path: 'inventory',
+        loadComponent: () => import('./inventory/inventory-list/inventory-list').then(m => m.InventoryList),
+        title: 'Inventory | ShopSphere Admin'
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./orders/admin-order-list/admin-order-list').then(m => m.AdminOrderList),
         title: 'Orders | ShopSphere Admin'

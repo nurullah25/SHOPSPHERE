@@ -1,0 +1,105 @@
+<div class="page-heading">
+  <div>
+    <h1>Inventory</h1>
+    <p class="muted">Stock changes here are recorded with a reason and show up in the product history.</p>
+  </div>
+</div>
+
+<form [formGroup]="filterForm" class="filters">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Search name or SKU</mat-label>
+    <input matInput formControlName="search" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Sort</mat-label>
+    <mat-select formControlName="sort">
+      <mat-option value="stock_asc">Stock: low to high</mat-option>
+      <mat-option value="stock_desc">Stock: high to low</mat-option>
+      <mat-option value="name">Name</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-checkbox formControlName="lowStock">Low stock only</mat-checkbox>
+</form>
+
+@if (result(); as page) {
+  @if (page.items.length === 0) {
+    <app-empty-state icon="inventory" title="No products match these filters" />
+  } @else {
+    <div class="table-wrapper" [class.loading]="loading()">
+      <table mat-table [dataSource]="page.items">
+        <ng-container matColumnDef="product">
+          <th mat-header-cell *matHeaderCellDef>Product</th>
+          <td mat-cell *matCellDef="let item">
+            <a [routerLink]="['/admin/products', item.productId]">{{ item.name }}</a>
+            <div class="muted">
+              {{ item.sku }}
+              @if (!item.isActive) {
+                &middot; inactive
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let item">{{ item.categoryName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="stock">
+          <th mat-header-cell *matHeaderCellDef>In stock</th>
+          <td mat-cell *matCellDef="let item">
+            <span class="stock" [class.low]="item.isLowStock" [class.out]="item.stockQuantity === 0">
+              {{ item.stockQuantity }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="reserved">
+          <th mat-header-cell *matHeaderCellDef>Reserved</th>
+          <td mat-cell *matCellDef="let item">
+            @if (item.reservedForPendingOrders > 0) {
+              <span matTooltip="Held by orders that are placed but not paid yet">
+                {{ item.reservedForPendingOrders }}
+              </span>
+            } @else {
+              <span class="muted">—</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="threshold">
+          <th mat-header-cell *matHeaderCellDef>Low at</th>
+          <td mat-cell *matCellDef="let item">{{ item.lowStockThreshold }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="updated">
+          <th mat-header-cell *matHeaderCellDef>Updated</th>
+          <td mat-cell *matCellDef="let item">{{ item.updatedAt | date: 'mediumDate' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-stroked-button (click)="adjust(item)">Adjust</button>
+            <button mat-icon-button (click)="showHistory(item)" matTooltip="Stock history">
+              <mat-icon>history</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="page.totalCount"
+      [pageSize]="page.pageSize"
+      [pageIndex]="page.page - 1"
+      [pageSizeOptions]="[25, 50, 100]"
+      (page)="changePage($event)" />
+  }
+}

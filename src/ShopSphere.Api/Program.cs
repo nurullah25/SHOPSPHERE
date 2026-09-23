@@ -12,6 +12,7 @@ using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
 using ShopSphere.Api.Features.Admin;
 using ShopSphere.Api.Features.Admin.Categories;
+using ShopSphere.Api.Features.Admin.Inventory;
 using ShopSphere.Api.Features.Admin.Orders;
 using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
@@ -81,6 +82,13 @@ try
     builder.Services.AddScoped<OrderService>();
     builder.Services.AddScoped<OrderWorkflow>();
     builder.Services.AddScoped<AdminOrderService>();
+    builder.Services.AddScoped<InventoryService>();
+    builder.Services.AddScoped<PendingOrderExpiry>();
+    builder.Services.Configure<OrderSettings>(builder.Configuration.GetSection(OrderSettings.SectionName));
+
+    // Tests drive PendingOrderExpiry directly instead of waiting for the timer
+    if (!builder.Environment.IsEnvironment("Testing"))
+        builder.Services.AddHostedService<PendingOrderExpiryJob>();
     builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
     builder.Services.Configure<ShippingSettings>(builder.Configuration.GetSection(ShippingSettings.SectionName));
     builder.Services.AddScoped<AuditService>();
