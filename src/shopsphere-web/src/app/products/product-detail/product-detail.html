@@ -62,6 +62,33 @@
           }
         </div>
 
+        @if (item.stockQuantity > 0) {
+          <div class="buy-row">
+            <app-quantity-selector
+              [quantity]="quantity()"
+              [max]="item.stockQuantity"
+              [disabled]="addingToCart()"
+              (quantityChange)="quantity.set($event)" />
+
+            <button mat-flat-button class="add-button" [disabled]="addingToCart()" (click)="addToCart()">
+              <mat-icon>shopping_cart</mat-icon>
+              {{ addingToCart() ? 'Adding...' : 'Add to cart' }}
+            </button>
+
+            <button
+              mat-icon-button
+              (click)="toggleWishlist()"
+              [attr.aria-label]="inWishlist() ? 'Remove from wishlist' : 'Save to wishlist'">
+              <mat-icon>{{ inWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+            </button>
+          </div>
+        } @else {
+          <button mat-stroked-button (click)="toggleWishlist()">
+            <mat-icon>{{ inWishlist() ? 'favorite' : 'favorite_border' }}</mat-icon>
+            {{ inWishlist() ? 'Saved to wishlist' : 'Save to wishlist' }}
+          </button>
+        }
+
         <mat-divider />
 
         <p class="description">{{ item.description }}</p>

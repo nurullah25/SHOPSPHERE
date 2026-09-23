@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { adminGuard, guestGuard } from './core/guards/auth.guards';
+import { adminGuard, authGuard, guestGuard } from './core/guards/auth.guards';
 
 export const routes: Routes = [
   {
@@ -24,6 +24,18 @@ export const routes: Routes = [
       {
         path: 'products/:slug',
         loadComponent: () => import('./products/product-detail/product-detail').then(m => m.ProductDetail)
+      },
+      {
+        path: 'cart',
+        canActivate: [authGuard],
+        loadComponent: () => import('./cart/cart-page/cart-page').then(m => m.CartPage),
+        title: 'Cart | ShopSphere'
+      },
+      {
+        path: 'wishlist',
+        canActivate: [authGuard],
+        loadComponent: () => import('./wishlist/wishlist-page/wishlist-page').then(m => m.WishlistPage),
+        title: 'Wishlist | ShopSphere'
       },
       {
         path: 'login',

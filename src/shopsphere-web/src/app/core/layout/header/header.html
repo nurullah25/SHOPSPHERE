@@ -20,10 +20,21 @@
   <span class="spacer"></span>
 
   <a mat-icon-button routerLink="/wishlist" aria-label="Wishlist">
-    <mat-icon>favorite_border</mat-icon>
+    <mat-icon
+      [matBadge]="wishlistCount$ | async"
+      [matBadgeHidden]="(wishlistCount$ | async) === 0"
+      matBadgeSize="small"
+      matBadgeColor="accent">
+      favorite_border
+    </mat-icon>
   </a>
   <a mat-icon-button routerLink="/cart" aria-label="Cart">
-    <mat-icon>shopping_cart</mat-icon>
+    <mat-icon
+      [matBadge]="cartCount$ | async"
+      [matBadgeHidden]="(cartCount$ | async) === 0"
+      matBadgeSize="small">
+      shopping_cart
+    </mat-icon>
   </a>
 
   @if (user$ | async; as user) {

@@ -1,0 +1,140 @@
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 16px;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.items.updating {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  &.unavailable {
+    background: color-mix(in srgb, var(--mat-sys-error-container) 35%, transparent);
+  }
+}
+
+.photo {
+  display: block;
+  width: 96px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.name {
+  font: var(--mat-sys-title-small);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.unit-price {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.issue {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.line-total {
+  font: var(--mat-sys-title-medium);
+  white-space: nowrap;
+}
+
+.clear-button {
+  margin-top: 12px;
+}
+
+.summary {
+  position: sticky;
+  top: 80px;
+
+  h2 {
+    margin: 0 0 12px;
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+
+  &.total {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+.hint {
+  margin: 4px 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.checkout-button {
+  width: 100%;
+  margin-top: 12px;
+
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 900px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .item {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .photo {
+    width: 72px;
+  }
+
+  .line-total {
+    grid-column: 2;
+  }
+}

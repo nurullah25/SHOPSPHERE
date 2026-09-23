@@ -1,0 +1,101 @@
+@let current = cart();
+
+<div class="page-container">
+  <h1>Your cart</h1>
+
+  @if (current.items.length === 0) {
+    <app-empty-state
+      icon="shopping_cart"
+      title="Your cart is empty"
+      message="Browse the catalog and add something you like.">
+      <a mat-flat-button routerLink="/products">Start shopping</a>
+    </app-empty-state>
+  } @else {
+    <div class="cart-layout">
+      <div class="items" [class.updating]="updating()">
+        @for (item of current.items; track item.productId) {
+          <div class="item" [class.unavailable]="!item.isAvailable">
+            <a [routerLink]="['/products', item.slug]" class="photo">
+              <app-product-photo [url]="item.imageUrl" [alt]="item.name" />
+            </a>
+
+            <div class="details">
+              <a [routerLink]="['/products', item.slug]" class="name">{{ item.name }}</a>
+              <span class="unit-price">{{ item.unitPrice | currency: 'USD' }} each</span>
+
+              @if (item.issue) {
+                <span class="issue">
+                  <mat-icon>warning</mat-icon>
+                  {{ item.issue }}
+                </span>
+              }
+
+              <div class="actions">
+                <app-quantity-selector
+                  [quantity]="item.quantity"
+                  [max]="item.availableStock"
+                  [disabled]="updating() || item.availableStock === 0"
+                  (quantityChange)="changeQuantity(item, $event)" />
+
+                <button mat-button (click)="remove(item)">
+                  <mat-icon>delete_outline</mat-icon>
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <span class="line-total">{{ item.lineTotal | currency: 'USD' }}</span>
+          </div>
+        }
+
+        <button mat-button class="clear-button" (click)="clear()">Empty cart</button>
+      </div>
+
+      <mat-card appearance="outlined" class="summary">
+        <mat-card-content>
+          <h2>Order summary</h2>
+
+          <div class="line">
+            <span>Subtotal</span>
+            <span>{{ current.subtotal | currency: 'USD' }}</span>
+          </div>
+          <div class="line">
+            <span>Shipping</span>
+            <span>
+              @if (shippingCost(current.subtotal) === 0) {
+                Free
+              } @else {
+                {{ shippingCost(current.subtotal) | currency: 'USD' }}
+              }
+            </span>
+          </div>
+
+          @if (amountToFreeShipping(current.subtotal) > 0) {
+            <p class="hint">
+              Add {{ amountToFreeShipping(current.subtotal) | currency: 'USD' }} more for free shipping.
+            </p>
+          }
+
+          <div class="line total">
+            <span>Estimated total</span>
+            <span>{{ current.subtotal + shippingCost(current.subtotal) | currency: 'USD' }}</span>
+          </div>
+
+          <p class="hint">Coupons are applied at checkout.</p>
+
+          @if (current.hasUnavailableItems) {
+            <p class="issue">Update the highlighted items before checking out.</p>
+          }
+
+          <a
+            mat-flat-button
+            class="checkout-button"
+            routerLink="/checkout"
+            [class.disabled]="current.hasUnavailableItems || current.subtotal === 0">
+            Proceed to checkout
+          </a>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

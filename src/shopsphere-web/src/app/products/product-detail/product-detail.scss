@@ -83,6 +83,17 @@
   }
 }
 
+.buy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.add-button {
+  min-width: 160px;
+}
+
 .description {
   margin: 0;
   line-height: 1.6;

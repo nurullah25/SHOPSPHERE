@@ -13,7 +13,9 @@ using ShopSphere.Api.Features.Admin;
 using ShopSphere.Api.Features.Admin.Categories;
 using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
+using ShopSphere.Api.Features.Cart;
 using ShopSphere.Api.Features.Catalog;
+using ShopSphere.Api.Features.Wishlist;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -66,6 +68,8 @@ try
     builder.Services.AddScoped<TokenService>();
     builder.Services.AddScoped<AuthService>();
     builder.Services.AddScoped<CatalogService>();
+    builder.Services.AddScoped<CartService>();
+    builder.Services.AddScoped<WishlistService>();
     builder.Services.AddScoped<AuditService>();
     builder.Services.AddScoped<AdminProductService>();
     builder.Services.AddScoped<AdminCategoryService>();

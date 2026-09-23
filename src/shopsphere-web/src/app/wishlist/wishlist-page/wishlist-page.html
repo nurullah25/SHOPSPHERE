@@ -1,0 +1,47 @@
+<div class="page-container">
+  <h1>Wishlist</h1>
+
+  @if (items().length === 0) {
+    <app-empty-state
+      icon="favorite_border"
+      title="No saved products yet"
+      message="Tap the heart on a product to save it for later.">
+      <a mat-flat-button routerLink="/products">Browse products</a>
+    </app-empty-state>
+  } @else {
+    <div class="wishlist-grid">
+      @for (item of items(); track item.productId) {
+        <div class="item">
+          <a [routerLink]="['/products', item.slug]" class="photo">
+            <app-product-photo [url]="item.imageUrl" [alt]="item.name" />
+          </a>
+
+          <a [routerLink]="['/products', item.slug]" class="name">{{ item.name }}</a>
+          <app-price [price]="item.price" [discountPrice]="item.discountPrice" />
+
+          @if (!item.isActive) {
+            <span class="issue">No longer available</span>
+          } @else if (!item.inStock) {
+            <span class="issue">Out of stock</span>
+          }
+
+          <div class="actions">
+            <button
+              mat-flat-button
+              [disabled]="!item.isActive || !item.inStock || busyProductId() === item.productId"
+              (click)="moveToCart(item)">
+              Move to cart
+            </button>
+            <button
+              mat-icon-button
+              [disabled]="busyProductId() === item.productId"
+              (click)="remove(item)"
+              aria-label="Remove from wishlist">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
