@@ -94,6 +94,7 @@ export interface Order {
   paymentFailureReason: string | null;
   notes: string | null;
   cancellationReason: string | null;
+  canCancel: boolean;
   items: OrderItem[];
   shippingAddress: SavedAddress;
   statusHistory: OrderStatusEntry[];
@@ -105,3 +106,35 @@ export const PAYMENT_METHODS = [
   { token: 'tok_declined', label: 'Visa ending 0002', hint: 'Card declined' },
   { token: 'tok_insufficient_funds', label: 'Mastercard ending 9995', hint: 'Insufficient funds' }
 ];
+
+export interface OrderSummary {
+  orderNumber: string;
+  placedAt: string;
+  status: string;
+  paymentStatus: string;
+  total: number;
+  itemCount: number;
+  previewItemName: string;
+  previewImageUrl: string | null;
+  canCancel: boolean;
+}
+
+export interface AdminOrderListItem {
+  id: number;
+  orderNumber: string;
+  placedAt: string;
+  status: string;
+  paymentStatus: string;
+  total: number;
+  itemCount: number;
+  customerName: string;
+  customerEmail: string;
+}
+
+export interface AdminOrder extends Order {
+  id: number;
+  customerId: number;
+  customerName: string;
+  customerEmail: string;
+  allowedNextStatuses: string[];
+}

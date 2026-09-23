@@ -1,0 +1,135 @@
+@if (order(); as details) {
+  <div class="page-heading">
+    <div>
+      <a mat-button routerLink="/admin/orders">
+        <mat-icon>arrow_back</mat-icon>
+        Orders
+      </a>
+      <h1>{{ details.orderNumber }}</h1>
+      <p class="muted">Placed {{ details.placedAt | date: 'medium' }}</p>
+    </div>
+    <app-order-status-chip [status]="details.status" />
+  </div>
+
+  <mat-card appearance="outlined" class="actions-card">
+    <mat-card-content>
+      @if (details.allowedNextStatuses.length === 0) {
+        <p class="muted">This order is {{ details.status.toLowerCase() }} and can't change status anymore.</p>
+      } @else {
+        <div class="status-actions">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="note-field">
+            <mat-label>Note (optional)</mat-label>
+            <input matInput [formControl]="note" placeholder="Visible in the order timeline" />
+          </mat-form-field>
+
+          @for (status of details.allowedNextStatuses; track status) {
+            <button
+              mat-flat-button
+              [class.destructive]="status === 'Cancelled'"
+              [disabled]="busy()"
+              (click)="changeStatus(status)">
+              Mark as {{ status.toLowerCase() }}
+            </button>
+          }
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <div class="details-layout">
+    <div class="main">
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Items</mat-card-title></mat-card-header>
+        <mat-card-content>
+          @for (item of details.items; track item.productId) {
+            <div class="order-item">
+              <div>
+                <div class="name">{{ item.productName }}</div>
+                <div class="muted">SKU {{ item.sku }} &middot; {{ item.quantity }} × {{ item.unitPrice | currency: 'USD' }}</div>
+              </div>
+              <span>{{ item.lineTotal | currency: 'USD' }}</span>
+            </div>
+          }
+
+          <div class="line">
+            <span>Subtotal</span>
+            <span>{{ details.subtotal | currency: 'USD' }}</span>
+          </div>
+          @if (details.discountAmount > 0) {
+            <div class="line discount">
+              <span>Discount ({{ details.couponCode }})</span>
+              <span>-{{ details.discountAmount | currency: 'USD' }}</span>
+            </div>
+          }
+          <div class="line">
+            <span>Shipping</span>
+            <span>{{ details.shippingCost | currency: 'USD' }}</span>
+          </div>
+          <div class="line total">
+            <span>Total</span>
+            <span>{{ details.total | currency: 'USD' }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Timeline</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <ol class="timeline">
+            @for (entry of details.statusHistory; track entry.changedAt) {
+              <li>
+                <strong>{{ entry.toStatus }}</strong>
+                <span class="muted">{{ entry.changedAt | date: 'short' }}</span>
+                @if (entry.note) {
+                  <span class="muted">{{ entry.note }}</span>
+                }
+              </li>
+            }
+          </ol>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="side">
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Customer</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p>
+            {{ details.customerName }}<br />
+            <span class="muted">{{ details.customerEmail }}</span>
+          </p>
+          <p class="muted">Payment: {{ details.paymentStatus }}</p>
+          @if (details.paymentFailureReason) {
+            <p class="muted">{{ details.paymentFailureReason }}</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined">
+        <mat-card-header><mat-card-title>Shipping address</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <p class="address">
+            {{ details.shippingAddress.fullName }}<br />
+            {{ details.shippingAddress.line1 }}<br />
+            @if (details.shippingAddress.line2) {
+              {{ details.shippingAddress.line2 }}<br />
+            }
+            {{ details.shippingAddress.city }}
+            @if (details.shippingAddress.state) {
+              , {{ details.shippingAddress.state }}
+            }
+            {{ details.shippingAddress.postalCode }}<br />
+            {{ details.shippingAddress.country }}
+          </p>
+          @if (details.notes) {
+            <p class="muted">Customer note: {{ details.notes }}</p>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+} @else if (!loading()) {
+  <app-empty-state icon="receipt_long" title="Order not found">
+    <a mat-flat-button routerLink="/admin/orders">Back to orders</a>
+  </app-empty-state>
+}

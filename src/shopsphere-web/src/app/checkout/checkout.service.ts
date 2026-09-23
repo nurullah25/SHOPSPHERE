@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { silentErrors } from '../core/http/http-context';
-import { CheckoutResult, CheckoutSummary, Order, PlaceOrderRequest } from '../core/models/checkout.models';
+import { CheckoutResult, CheckoutSummary, PlaceOrderRequest } from '../core/models/checkout.models';
 
 @Injectable({ providedIn: 'root' })
 export class CheckoutService {
@@ -19,13 +19,5 @@ export class CheckoutService {
 
   placeOrder(request: PlaceOrderRequest): Observable<CheckoutResult> {
     return this.http.post<CheckoutResult>('/api/checkout', request, { context: silentErrors() });
-  }
-
-  getOrder(orderNumber: string): Observable<Order> {
-    return this.http.get<Order>(`/api/orders/${orderNumber}`);
-  }
-
-  retryPayment(orderNumber: string, paymentToken: string): Observable<CheckoutResult> {
-    return this.http.post<CheckoutResult>(`/api/orders/${orderNumber}/payments`, { paymentToken });
   }
 }

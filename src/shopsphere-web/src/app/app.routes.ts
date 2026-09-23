@@ -46,8 +46,22 @@ export const routes: Routes = [
       {
         path: 'checkout/success/:orderNumber',
         canActivate: [authGuard],
-        loadComponent: () => import('./checkout/order-confirmation/order-confirmation').then(m => m.OrderConfirmation),
+        // Same page as the order details, with the confirmation banner
+        data: { justPlaced: true },
+        loadComponent: () => import('./orders/order-detail/order-detail').then(m => m.OrderDetail),
         title: 'Order confirmed | ShopSphere'
+      },
+      {
+        path: 'account/orders',
+        canActivate: [authGuard],
+        loadComponent: () => import('./orders/order-list/order-list').then(m => m.OrderList),
+        title: 'My orders | ShopSphere'
+      },
+      {
+        path: 'account/orders/:orderNumber',
+        canActivate: [authGuard],
+        loadComponent: () => import('./orders/order-detail/order-detail').then(m => m.OrderDetail),
+        title: 'Order | ShopSphere'
       },
       {
         path: 'login',

@@ -129,7 +129,7 @@ The integration tests start the API in memory with `WebApplicationFactory` and r
 - [x] Phase 4: Storefront UI and admin catalog screens
 - [x] Phase 5: Cart and wishlist
 - [x] Phase 6: Coupons, checkout and mock payment
-- [ ] Phase 7: Orders and status workflow
+- [x] Phase 7: Orders and status workflow
 - [ ] Phase 8: Inventory management
 - [ ] Phase 9: Reviews
 - [ ] Phase 10: Admin dashboard, reports, customers

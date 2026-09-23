@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShopSphere.Api.Common;
@@ -17,6 +18,20 @@ public class OrdersController : ControllerBase
     {
         _orderService = orderService;
         _checkoutService = checkoutService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PagedResult<OrderSummaryDto>>> GetOrders(
+        [FromQuery, Range(1, int.MaxValue)] int page = 1,
+        [FromQuery, Range(1, 50)] int pageSize = 10)
+    {
+        return Ok(await _orderService.GetOrdersAsync(User.GetUserId(), page, pageSize));
+    }
+
+    [HttpPost("{orderNumber}/cancel")]
+    public async Task<ActionResult<OrderDto>> Cancel(string orderNumber, CancelOrderRequest request)
+    {
+        return Ok(await _orderService.CancelAsync(User.GetUserId(), orderNumber, request.Reason));
     }
 
     [HttpGet("{orderNumber}")]

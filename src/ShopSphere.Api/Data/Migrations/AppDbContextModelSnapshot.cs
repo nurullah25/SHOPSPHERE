@@ -89,7 +89,7 @@ namespace ShopSphere.Api.Data.Migrations
                         .HasDatabaseName("IX_Addresses_UserId_Default")
                         .HasFilter("[IsDefault] = 1");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.AuditLog", b =>
@@ -132,7 +132,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("EntityName", "EntityId");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.CartItem", b =>
@@ -165,7 +165,7 @@ namespace ShopSphere.Api.Data.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("CartItems", t =>
+                    b.ToTable("CartItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_CartItems_Quantity", "[Quantity] > 0");
                         });
@@ -215,7 +215,7 @@ namespace ShopSphere.Api.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.Coupon", b =>
@@ -281,7 +281,7 @@ namespace ShopSphere.Api.Data.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Coupons", t =>
+                    b.ToTable("Coupons", null, t =>
                         {
                             t.HasCheckConstraint("CK_Coupons_DiscountValue", "[DiscountValue] > 0");
 
@@ -320,7 +320,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("CouponId", "UserId");
 
-                    b.ToTable("CouponRedemptions");
+                    b.ToTable("CouponRedemptions", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.InventoryMovement", b =>
@@ -366,7 +366,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("ProductId", "CreatedAt");
 
-                    b.ToTable("InventoryMovements");
+                    b.ToTable("InventoryMovements", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.Order", b =>
@@ -454,7 +454,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("UserId", "PlacedAt");
 
-                    b.ToTable("Orders", t =>
+                    b.ToTable("Orders", null, t =>
                         {
                             t.HasCheckConstraint("CK_Orders_Amounts", "[Subtotal] >= 0 AND [DiscountAmount] >= 0 AND [ShippingCost] >= 0 AND [Total] >= 0");
                         });
@@ -501,7 +501,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", t =>
+                    b.ToTable("OrderItems", null, t =>
                         {
                             t.HasCheckConstraint("CK_OrderItems_Quantity", "[Quantity] > 0");
 
@@ -593,7 +593,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("TransactionReference");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.Product", b =>
@@ -683,7 +683,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("IsActive", "StockQuantity");
 
-                    b.ToTable("Products", t =>
+                    b.ToTable("Products", null, t =>
                         {
                             t.HasCheckConstraint("CK_Products_DiscountPrice", "[DiscountPrice] IS NULL OR ([DiscountPrice] >= 0 AND [DiscountPrice] < [Price])");
 
@@ -726,7 +726,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.RefreshToken", b =>
@@ -765,7 +765,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.Review", b =>
@@ -806,7 +806,7 @@ namespace ShopSphere.Api.Data.Migrations
                     b.HasIndex("ProductId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Reviews", t =>
+                    b.ToTable("Reviews", null, t =>
                         {
                             t.HasCheckConstraint("CK_Reviews_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
@@ -868,7 +868,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                     b.HasIndex("Role");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.WishlistItem", b =>
@@ -895,7 +895,7 @@ namespace ShopSphere.Api.Data.Migrations
                     b.HasIndex("UserId", "ProductId")
                         .IsUnique();
 
-                    b.ToTable("WishlistItems");
+                    b.ToTable("WishlistItems", (string)null);
                 });
 
             modelBuilder.Entity("ShopSphere.Api.Entities.Address", b =>
@@ -1013,7 +1013,7 @@ namespace ShopSphere.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("ShopSphere.Api.Entities.OrderAddress", "ShippingAddress", b1 =>
+                    b.OwnsOne("ShopSphere.Api.Entities.Order.ShippingAddress#ShopSphere.Api.Entities.OrderAddress", "ShippingAddress", b1 =>
                         {
                             b1.Property<int>("OrderId")
                                 .HasColumnType("int");
@@ -1065,7 +1065,7 @@ namespace ShopSphere.Api.Data.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders");
+                            b1.ToTable("Orders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");

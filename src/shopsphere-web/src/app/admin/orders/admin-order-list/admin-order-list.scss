@@ -1,0 +1,39 @@
+.page-heading h1 {
+  margin: 0 0 16px;
+  font: var(--mat-sys-headline-small);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    min-width: 170px;
+    flex: 1;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+
+  &.loading {
+    opacity: 0.6;
+  }
+}
+
+table {
+  width: 100%;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+mat-paginator {
+  background: transparent;
+}

@@ -1,18 +1,38 @@
 <div class="page-container">
   @if (order(); as details) {
-    <div class="status-banner" [class.pending]="details.paymentStatus === 'Failed'">
-      <mat-icon>{{ details.paymentStatus === 'Failed' ? 'error_outline' : 'check_circle' }}</mat-icon>
+    @if (justPlaced()) {
+      <div class="status-banner" [class.pending]="details.paymentStatus === 'Failed'">
+        <mat-icon>{{ details.paymentStatus === 'Failed' ? 'error_outline' : 'check_circle' }}</mat-icon>
+        <div>
+          <h1>
+            {{ details.paymentStatus === 'Failed' ? 'Payment could not be processed' : 'Thanks for your order!' }}
+          </h1>
+          <p>We've sent the details to your account. Keep order {{ details.orderNumber }} for your records.</p>
+        </div>
+      </div>
+    }
+
+    <div class="order-heading">
       <div>
-        <h1>
-          {{ details.paymentStatus === 'Failed' ? 'Payment could not be processed' : 'Thanks for your order!' }}
-        </h1>
-        <p>
-          Order <strong>{{ details.orderNumber }}</strong> &middot;
-          placed {{ details.placedAt | date: 'medium' }} &middot;
-          status {{ details.status }}
-        </p>
+        <a mat-button routerLink="/account/orders">
+          <mat-icon>arrow_back</mat-icon>
+          My orders
+        </a>
+        <h2>Order {{ details.orderNumber }}</h2>
+        <p class="muted">Placed {{ details.placedAt | date: 'medium' }}</p>
+      </div>
+
+      <div class="heading-actions">
+        <app-order-status-chip [status]="details.status" />
+        @if (details.canCancel) {
+          <button mat-stroked-button [disabled]="busy()" (click)="cancelOrder()">Cancel order</button>
+        }
       </div>
     </div>
+
+    @if (details.status === 'Cancelled' && details.cancellationReason) {
+      <p class="cancelled-note">Cancelled: {{ details.cancellationReason }}</p>
+    }
 
     @if (details.paymentStatus === 'Failed') {
       <mat-card appearance="outlined" class="retry-card">
@@ -30,8 +50,8 @@
             }
           </mat-radio-group>
 
-          <button mat-flat-button [disabled]="retrying()" (click)="retryPayment()">
-            {{ retrying() ? 'Processing...' : 'Try payment again' }}
+          <button mat-flat-button [disabled]="busy()" (click)="retryPayment()">
+            {{ busy() ? 'Processing...' : 'Try payment again' }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -135,7 +155,7 @@
       icon="receipt_long"
       title="Order not found"
       message="We couldn't find this order on your account.">
-      <a mat-flat-button routerLink="/products">Browse products</a>
+      <a mat-flat-button routerLink="/account/orders">My orders</a>
     </app-empty-state>
   }
 </div>

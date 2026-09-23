@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -11,6 +12,7 @@ using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
 using ShopSphere.Api.Features.Admin;
 using ShopSphere.Api.Features.Admin.Categories;
+using ShopSphere.Api.Features.Admin.Orders;
 using ShopSphere.Api.Features.Admin.Products;
 using ShopSphere.Api.Features.Auth;
 using ShopSphere.Api.Features.Cart;
@@ -77,6 +79,8 @@ try
     builder.Services.AddScoped<CouponService>();
     builder.Services.AddScoped<CheckoutService>();
     builder.Services.AddScoped<OrderService>();
+    builder.Services.AddScoped<OrderWorkflow>();
+    builder.Services.AddScoped<AdminOrderService>();
     builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
     builder.Services.Configure<ShippingSettings>(builder.Configuration.GetSection(ShippingSettings.SectionName));
     builder.Services.AddScoped<AuditService>();
@@ -84,7 +88,9 @@ try
     builder.Services.AddScoped<AdminCategoryService>();
     builder.Services.AddSingleton<ProductImageStorage>();
 
-    builder.Services.AddControllers();
+    // Enums are sent and received as names ("Shipped"), not numbers
+    builder.Services.AddControllers()
+        .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     builder.Services.AddProblemDetails();
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddHealthChecks();

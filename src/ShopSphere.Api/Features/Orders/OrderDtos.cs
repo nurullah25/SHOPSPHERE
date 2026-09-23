@@ -22,6 +22,8 @@ public class OrderDto
     public string? Notes { get; set; }
     public string? CancellationReason { get; set; }
 
+    public bool CanCancel { get; set; }
+
     public List<OrderItemDto> Items { get; set; } = new();
     public SavedAddressDto ShippingAddress { get; set; } = null!;
     public List<OrderStatusEntryDto> StatusHistory { get; set; } = new();
@@ -53,4 +55,23 @@ public class RetryPaymentRequest
     [RegularExpression($"^({MockPaymentGateway.SuccessToken}|{MockPaymentGateway.DeclinedToken}|{MockPaymentGateway.InsufficientFundsToken})$",
         ErrorMessage = "Unknown payment method.")]
     public string PaymentToken { get; set; } = string.Empty;
+}
+
+public class OrderSummaryDto
+{
+    public string OrderNumber { get; set; } = string.Empty;
+    public DateTime PlacedAt { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string PaymentStatus { get; set; } = string.Empty;
+    public decimal Total { get; set; }
+    public int ItemCount { get; set; }
+    public string PreviewItemName { get; set; } = string.Empty;
+    public string? PreviewImageUrl { get; set; }
+    public bool CanCancel { get; set; }
+}
+
+public class CancelOrderRequest
+{
+    [MaxLength(300)]
+    public string? Reason { get; set; }
 }

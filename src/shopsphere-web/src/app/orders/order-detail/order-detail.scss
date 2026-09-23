@@ -138,3 +138,31 @@
     grid-template-columns: 1fr;
   }
 }
+
+.order-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  h2 {
+    margin: 4px 0 0;
+    font: var(--mat-sys-headline-small);
+  }
+
+  p {
+    margin: 2px 0 0;
+  }
+}
+
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cancelled-note {
+  margin: 0 0 16px;
+  color: var(--mat-sys-error);
+}

@@ -3,96 +3,118 @@ using ShopSphere.Api.Common;
 using ShopSphere.Api.Data;
 using ShopSphere.Api.Entities;
 using ShopSphere.Api.Features.Checkout;
+using ShopSphere.Api.Features.Orders;
 
-namespace ShopSphere.Api.Features.Orders;
+namespace ShopSphere.Api.Features.Admin.Orders;
 
-public class OrderService
+public class AdminOrderService
 {
     private readonly AppDbContext _db;
     private readonly OrderWorkflow _workflow;
+    private readonly AuditService _audit;
 
-    public OrderService(AppDbContext db, OrderWorkflow workflow)
+    public AdminOrderService(AppDbContext db, OrderWorkflow workflow, AuditService audit)
     {
         _db = db;
         _workflow = workflow;
+        _audit = audit;
     }
 
-    public Task<PagedResult<OrderSummaryDto>> GetOrdersAsync(int userId, int page, int pageSize)
+    public Task<PagedResult<AdminOrderListItemDto>> GetOrdersAsync(AdminOrderQuery query)
     {
-        return _db.Orders
-            .AsNoTracking()
-            .Where(o => o.UserId == userId)
+        var orders = _db.Orders.AsNoTracking();
+
+        if (query.Status.HasValue)
+            orders = orders.Where(o => o.Status == query.Status);
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            orders = orders.Where(o =>
+                o.OrderNumber.Contains(term) ||
+                o.User.Email.Contains(term) ||
+                o.User.FirstName.Contains(term) ||
+                o.User.LastName.Contains(term));
+        }
+
+        if (query.From.HasValue)
+            orders = orders.Where(o => o.PlacedAt >= query.From);
+
+        if (query.To.HasValue)
+        {
+            // Treat the end date as inclusive
+            var to = query.To.Value.Date.AddDays(1);
+            orders = orders.Where(o => o.PlacedAt < to);
+        }
+
+        return orders
             .OrderByDescending(o => o.PlacedAt).ThenByDescending(o => o.Id)
-            .Select(o => new OrderSummaryDto
+            .Select(o => new AdminOrderListItemDto
             {
+                Id = o.Id,
                 OrderNumber = o.OrderNumber,
                 PlacedAt = o.PlacedAt,
                 Status = o.Status.ToString(),
                 PaymentStatus = o.Payments.OrderByDescending(p => p.CreatedAt).Select(p => p.Status.ToString()).FirstOrDefault() ?? string.Empty,
                 Total = o.Total,
                 ItemCount = o.Items.Sum(i => i.Quantity),
-                PreviewItemName = o.Items.Select(i => i.ProductName).FirstOrDefault() ?? string.Empty,
-                PreviewImageUrl = o.Items
-                    .SelectMany(i => i.Product.Images.Where(img => img.IsMain).Select(img => img.Url))
-                    .FirstOrDefault(),
-                CanCancel = o.Status == OrderStatus.Pending || o.Status == OrderStatus.Confirmed
+                CustomerName = o.User.FirstName + " " + o.User.LastName,
+                CustomerEmail = o.User.Email
             })
-            .ToPagedResultAsync(page, pageSize);
+            .ToPagedResultAsync(query.Page, query.PageSize);
     }
 
-    public async Task<OrderDto> CancelAsync(int userId, string orderNumber, string? reason)
-    {
-        var order = await _db.Orders
-            .Include(o => o.Items)
-            .Include(o => o.Payments)
-            .SingleOrDefaultAsync(o => o.OrderNumber == orderNumber && o.UserId == userId)
-            ?? throw new NotFoundException($"Order {orderNumber} was not found.");
-
-        if (!OrderStatusRules.CanCustomerCancel(order.Status))
-        {
-            throw new BusinessRuleException("Order can't be cancelled",
-                $"This order is already {order.Status.ToString().ToLowerInvariant()}. Contact support if you need help.");
-        }
-
-        await using var transaction = await _db.Database.BeginTransactionAsync();
-
-        await _workflow.ChangeStatusAsync(order, OrderStatus.Cancelled, userId,
-            string.IsNullOrWhiteSpace(reason) ? "Cancelled by customer" : reason.Trim());
-
-        await _db.SaveChangesAsync();
-        await transaction.CommitAsync();
-
-        return await GetOrderAsync(userId, orderNumber);
-    }
-
-    public async Task<OrderDto> GetOrderAsync(int userId, string orderNumber)
+    public async Task<AdminOrderDto> GetOrderAsync(int id)
     {
         var order = await _db.Orders
             .AsNoTracking()
             .Include(o => o.Items)
             .Include(o => o.Payments)
             .Include(o => o.StatusHistory)
-            .SingleOrDefaultAsync(o => o.OrderNumber == orderNumber && o.UserId == userId)
-            ?? throw new NotFoundException($"Order {orderNumber} was not found.");
+            .Include(o => o.User)
+            .SingleOrDefaultAsync(o => o.Id == id)
+            ?? throw new NotFoundException($"Order {id} was not found.");
 
-        // Product data is only used for links and thumbnails. The order itself
-        // keeps its own copy of name, SKU and price.
-        var productIds = order.Items.Select(i => i.ProductId).ToList();
-        var products = await _db.Products
-            .AsNoTracking()
-            .Where(p => productIds.Contains(p.Id))
-            .Select(p => new
-            {
-                p.Id,
-                p.Slug,
-                ImageUrl = p.Images.Where(i => i.IsMain).Select(i => i.Url).FirstOrDefault()
-            })
-            .ToDictionaryAsync(p => p.Id);
+        return ToDto(order);
+    }
 
+    public async Task<AdminOrderDto> ChangeStatusAsync(int id, ChangeOrderStatusRequest request, int adminId)
+    {
+        var order = await _db.Orders
+            .Include(o => o.Items)
+            .Include(o => o.Payments)
+            .Include(o => o.StatusHistory)
+            .Include(o => o.User)
+            .SingleOrDefaultAsync(o => o.Id == id)
+            ?? throw new NotFoundException($"Order {id} was not found.");
+
+        var previousStatus = order.Status;
+
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+
+        await _workflow.ChangeStatusAsync(order, request.Status, adminId, request.Note);
+
+        _audit.Record(adminId, "OrderStatusChanged", nameof(Order), order.Id, new
+        {
+            order.OrderNumber,
+            From = previousStatus.ToString(),
+            To = request.Status.ToString(),
+            request.Note
+        });
+
+        await _db.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return ToDto(order);
+    }
+
+    private static AdminOrderDto ToDto(Order order)
+    {
         var latestPayment = order.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault();
 
-        return new OrderDto
+        return new AdminOrderDto
         {
+            Id = order.Id,
             OrderNumber = order.OrderNumber,
             Status = order.Status.ToString(),
             PlacedAt = order.PlacedAt,
@@ -105,14 +127,15 @@ public class OrderService
             PaymentFailureReason = latestPayment?.FailureReason,
             Notes = order.Notes,
             CancellationReason = order.CancellationReason,
-            CanCancel = OrderStatusRules.CanCustomerCancel(order.Status),
+            CustomerId = order.UserId,
+            CustomerName = $"{order.User.FirstName} {order.User.LastName}",
+            CustomerEmail = order.User.Email,
+            AllowedNextStatuses = OrderStatusRules.AllowedNext(order.Status).Select(s => s.ToString()).ToList(),
             Items = order.Items.Select(item => new OrderItemDto
             {
                 ProductId = item.ProductId,
                 ProductName = item.ProductName,
                 Sku = item.Sku,
-                Slug = products.GetValueOrDefault(item.ProductId)?.Slug,
-                ImageUrl = products.GetValueOrDefault(item.ProductId)?.ImageUrl,
                 UnitPrice = item.UnitPrice,
                 Quantity = item.Quantity,
                 LineTotal = item.LineTotal

@@ -48,6 +48,12 @@
         <span>{{ user.email }}</span>
       </div>
       <mat-divider />
+      @if (user.role === 'Customer') {
+        <a mat-menu-item routerLink="/account/orders">
+          <mat-icon>receipt_long</mat-icon>
+          <span>My orders</span>
+        </a>
+      }
       @if (user.role === 'Admin') {
         <a mat-menu-item routerLink="/admin">
           <mat-icon>dashboard</mat-icon>

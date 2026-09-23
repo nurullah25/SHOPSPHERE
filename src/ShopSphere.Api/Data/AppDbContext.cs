@@ -36,6 +36,7 @@ public class AppDbContext : DbContext
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<decimal>().HavePrecision(18, 2);
+        configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
 
         // Enums are stored as readable strings instead of ints
         configurationBuilder.Properties<UserRole>().HaveConversion<string>().HaveMaxLength(20);
