@@ -22,6 +22,7 @@ using ShopSphere.Api.Features.Checkout;
 using ShopSphere.Api.Features.Coupons;
 using ShopSphere.Api.Features.Orders;
 using ShopSphere.Api.Features.Payments;
+using ShopSphere.Api.Features.Reviews;
 using ShopSphere.Api.Features.Wishlist;
 
 Log.Logger = new LoggerConfiguration()
@@ -83,6 +84,7 @@ try
     builder.Services.AddScoped<OrderWorkflow>();
     builder.Services.AddScoped<AdminOrderService>();
     builder.Services.AddScoped<InventoryService>();
+    builder.Services.AddScoped<ReviewService>();
     builder.Services.AddScoped<PendingOrderExpiry>();
     builder.Services.Configure<OrderSettings>(builder.Configuration.GetSection(OrderSettings.SectionName));
 

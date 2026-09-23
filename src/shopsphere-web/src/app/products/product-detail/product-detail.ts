@@ -15,6 +15,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { EmptyState } from '../../shared/components/empty-state/empty-state';
 import { Price } from '../../shared/components/price/price';
 import { ProductPhoto } from '../../shared/components/product-photo/product-photo';
+import { ProductReviewsSection } from '../product-reviews/product-reviews';
 import { QuantitySelector } from '../../shared/components/quantity-selector/quantity-selector';
 import { RatingStars } from '../../shared/components/rating-stars/rating-stars';
 
@@ -28,6 +29,7 @@ import { RatingStars } from '../../shared/components/rating-stars/rating-stars';
     EmptyState,
     Price,
     ProductPhoto,
+    ProductReviewsSection,
     QuantitySelector,
     RatingStars
   ],
@@ -52,15 +54,19 @@ export class ProductDetail {
   protected readonly quantity = signal(1);
   protected readonly addingToCart = signal(false);
 
+  // Bumped after a review is posted so the rating next to the title updates
+  private readonly reloadCount = signal(0);
+  private readonly source = computed(() => ({ slug: this.slug(), reload: this.reloadCount() }));
+
   protected readonly product = toSignal(
-    toObservable(this.slug).pipe(
+    toObservable(this.source).pipe(
       tap(() => {
         this.loading.set(true);
         this.notFound.set(false);
         this.selectedImageIndex.set(0);
         this.quantity.set(1);
       }),
-      switchMap(slug =>
+      switchMap(({ slug }) =>
         this.catalog.getProduct(slug).pipe(
           catchError(() => {
             this.notFound.set(true);
@@ -86,6 +92,10 @@ export class ProductDetail {
     const id = this.product()?.id;
     return id !== undefined && this.wishlistItems().some(item => item.productId === id);
   });
+
+  refreshProduct(): void {
+    this.reloadCount.update(count => count + 1);
+  }
 
   addToCart(): void {
     const product = this.product();

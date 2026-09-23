@@ -1,0 +1,127 @@
+@if (data(); as reviews) {
+  <section class="reviews">
+    <h2>Customer reviews</h2>
+
+    <div class="summary">
+      <div class="average">
+        <span class="score">{{ reviews.reviewCount === 0 ? '—' : reviews.averageRating }}</span>
+        <app-rating-stars [rating]="reviews.averageRating" />
+        <span class="muted">
+          {{ reviews.reviewCount }} {{ reviews.reviewCount === 1 ? 'review' : 'reviews' }}
+        </span>
+      </div>
+
+      <div class="breakdown">
+        @for (rating of ratings; track rating) {
+          <div class="bar-row">
+            <span class="label">{{ rating }} star</span>
+            <span class="bar"><span class="fill" [style.width]="barWidth(rating)"></span></span>
+            <span class="count">{{ reviews.ratingCounts[rating] }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (reviews.myReview && !editing()) {
+      <div class="my-review">
+        <div class="my-review-header">
+          <strong>Your review</strong>
+          <span class="actions">
+            <button mat-button (click)="startEditing(reviews.myReview!)">Edit</button>
+            <button mat-button (click)="deleteReview(reviews.myReview!)">Delete</button>
+          </span>
+        </div>
+        <app-rating-stars [rating]="reviews.myReview.rating" />
+        @if (reviews.myReview.title) {
+          <strong>{{ reviews.myReview.title }}</strong>
+        }
+        @if (reviews.myReview.comment) {
+          <p>{{ reviews.myReview.comment }}</p>
+        }
+      </div>
+    }
+
+    @if (reviews.canReview || editing()) {
+      <form [formGroup]="form" class="review-form" (ngSubmit)="submit()">
+        <h3>{{ editing() ? 'Edit your review' : 'Write a review' }}</h3>
+
+        @if (errorMessage()) {
+          <div class="form-error" role="alert">{{ errorMessage() }}</div>
+        }
+
+        <div class="rating-picker">
+          @for (rating of [1, 2, 3, 4, 5]; track rating) {
+            <button
+              type="button"
+              class="star-button"
+              (click)="form.controls.rating.setValue(rating)"
+              [attr.aria-label]="rating + ' stars'">
+              <mat-icon>{{ form.controls.rating.value >= rating ? 'star' : 'star_border' }}</mat-icon>
+            </button>
+          }
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Title (optional)</mat-label>
+          <input matInput formControlName="title" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Your review (optional)</mat-label>
+          <textarea matInput rows="3" formControlName="comment"></textarea>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-flat-button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Saving...' : editing() ? 'Save changes' : 'Post review' }}
+          </button>
+          @if (editing()) {
+            <button mat-button type="button" (click)="cancelEditing()">Cancel</button>
+          }
+        </div>
+      </form>
+    } @else if (!reviews.myReview) {
+      <p class="muted note">
+        @if (isSignedIn()) {
+          Only customers who received this product can review it.
+        } @else {
+          Sign in to review products you've received.
+        }
+      </p>
+    }
+
+    @if (reviews.reviews.items.length > 0) {
+      <ul class="review-list">
+        @for (review of reviews.reviews.items; track review.id) {
+          <li>
+            <div class="review-header">
+              <app-rating-stars [rating]="review.rating" />
+              <span class="muted">{{ review.customerName }} &middot; {{ review.createdAt | date: 'mediumDate' }}</span>
+              <span class="verified">
+                <mat-icon>verified</mat-icon>
+                Verified purchase
+              </span>
+            </div>
+            @if (review.title) {
+              <strong>{{ review.title }}</strong>
+            }
+            @if (review.comment) {
+              <p>{{ review.comment }}</p>
+            }
+          </li>
+        }
+      </ul>
+
+      @if (reviews.reviews.totalCount > reviews.reviews.pageSize) {
+        <mat-paginator
+          [length]="reviews.reviews.totalCount"
+          [pageSize]="reviews.reviews.pageSize"
+          [pageIndex]="reviews.reviews.page - 1"
+          [pageSizeOptions]="[5, 10, 25]"
+          (page)="changePage($event)" />
+      }
+    } @else {
+      <p class="muted">No reviews yet. Be the first to share your experience.</p>
+    }
+  </section>
+}

@@ -1,0 +1,164 @@
+.reviews {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+h2 {
+  margin: 0 0 16px;
+  font: var(--mat-sys-headline-small);
+}
+
+h3 {
+  margin: 0 0 8px;
+  font: var(--mat-sys-title-medium);
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.average {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.score {
+  font: var(--mat-sys-display-small);
+  line-height: 1;
+}
+
+.breakdown {
+  flex: 1;
+  min-width: 240px;
+  max-width: 420px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 32px;
+  align-items: center;
+  gap: 8px;
+
+  .label,
+  .count {
+    font: var(--mat-sys-body-small);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-high);
+  overflow: hidden;
+
+  .fill {
+    display: block;
+    height: 100%;
+    background: #f5a623;
+  }
+}
+
+.my-review,
+.review-form {
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  background: var(--mat-sys-surface-container-lowest);
+}
+
+.my-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rating-picker {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.star-button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px;
+  color: #f5a623;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-error {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  p {
+    margin: 4px 0 0;
+    line-height: 1.6;
+  }
+}
+
+.review-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #2e7d32;
+  font: var(--mat-sys-body-small);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.note {
+  font: var(--mat-sys-body-small);
+}
+
+mat-paginator {
+  background: transparent;
+}
